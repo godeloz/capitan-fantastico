@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El mapa que aún no existe — Liderazgo en escena</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F3F0E6;
+    --bg2:#EAE4D2;
+    --panel:#FFFFFF;
+    --line:rgba(63,90,58,0.18);
+    --teal:#0E8F84;
+    --gold:#C99A2E;
+    --gold-light:#F5C842;
+    --moss:#3F5A3A;
+    --bronze:#8B5530;
+    --ink:#26301F;
+    --text:#2B3328;
+    --text-dim:#6E7C66;
+    --danger:#B3492E;
+    --cream-text:#FDFBF4;
+    --font-d:'Bebas Neue',sans-serif;
+    --font-b:'Playfair Display',serif;
+    --font-m:'JetBrains Mono',monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:var(--font-b);}
+  body{min-height:100vh;position:relative;overflow-x:hidden;}
+  .bg-contours{position:fixed;inset:0;z-index:0;opacity:0.10;pointer-events:none;}
+  #app{position:relative;z-index:1;max-width:560px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;}
+  ::selection{background:var(--gold-light);color:var(--ink);}
+
+  .eyebrow{font-family:var(--font-m);font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--teal);margin:0 0 8px;}
+  h1,h2,h3{font-family:var(--font-d);letter-spacing:0.02em;font-weight:400;margin:0;}
+  h1{font-size:42px;line-height:1.02;color:var(--ink);}
+  h2{font-size:28px;color:var(--ink);}
+  h3{font-size:20px;color:var(--bronze);}
+  p{line-height:1.65;margin:0 0 14px;color:var(--text);}
+  .dim{color:var(--text-dim);}
+  .italic{font-style:italic;color:var(--moss);}
+
+  .screen{padding:28px 20px 100px;flex:1;animation:fadein 0.4s ease;}
+  @keyframes fadein{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+  .btn{
+    font-family:var(--font-d);font-size:16px;letter-spacing:0.06em;text-transform:uppercase;
+    background:var(--moss);color:var(--cream-text);border:none;border-radius:3px;
+    padding:14px 22px;cursor:pointer;width:100%;transition:transform 0.15s, opacity 0.15s;
+  }
+  .btn:active{transform:scale(0.98);}
+  .btn:disabled{background:var(--line);color:var(--text-dim);cursor:not-allowed;}
+  .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--text);}
+  .btn.small{padding:9px 14px;font-size:13px;width:auto;flex:1;}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:18px;margin-bottom:12px;}
+  .card.dossier{background:linear-gradient(180deg,var(--panel),var(--bg2));border-left:3px solid var(--gold-light);}
+
+  .header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;
+    padding:14px 20px;background:rgba(243,240,230,0.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);}
+  .header .logo{font-family:var(--font-d);font-size:18px;letter-spacing:0.05em;color:var(--bronze);}
+  .info-btn{width:30px;height:30px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--text-dim);
+    font-family:var(--font-m);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+
+  .tabs{display:flex;gap:6px;margin-bottom:16px;}
+  .tab{flex:1;text-align:center;padding:10px 4px;font-family:var(--font-d);font-size:14px;letter-spacing:0.04em;
+    border-radius:3px;border:1px solid var(--line);cursor:pointer;color:var(--text-dim);background:transparent;text-transform:uppercase;}
+  .tab.active{color:var(--cream-text);}
+  .tab.active[data-t="purista"]{background:var(--moss);}
+  .tab.active[data-t="guardian"]{background:var(--bronze);}
+  .tab.active[data-t="puente"]{background:var(--teal);}
+
+  .cat-label{font-family:var(--font-m);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);
+    margin:18px 0 8px;padding-bottom:4px;border-bottom:1px dashed var(--line);}
+
+  .skill-card{border:1px solid var(--line);border-radius:3px;padding:12px 14px;margin-bottom:8px;cursor:pointer;
+    background:var(--bg2);transition:border-color 0.15s,background 0.15s;}
+  .skill-card.selected{border-color:var(--gold);background:rgba(201,154,46,0.12);}
+  .skill-card.disabled{opacity:0.45;cursor:default;}
+  .skill-card .sname{font-family:var(--font-b);font-weight:600;font-size:15px;color:var(--ink);margin-bottom:3px;}
+  .skill-card .sdesc{font-size:13px;color:var(--text-dim);font-style:italic;line-height:1.4;}
+  .skill-card .stags{margin-top:6px;display:flex;flex-wrap:wrap;gap:5px;}
+  .tag{font-family:var(--font-m);font-size:10px;letter-spacing:0.03em;padding:2px 7px;border-radius:10px;
+    background:rgba(14,143,132,0.12);color:var(--teal);border:1px solid rgba(14,143,132,0.3);}
+  .tag.owned-else{background:rgba(110,124,102,0.12);color:var(--text-dim);border-color:var(--line);}
+
+  .footer-bar{position:sticky;bottom:0;z-index:20;background:rgba(243,240,230,0.96);backdrop-filter:blur(6px);
+    border-top:1px solid var(--line);padding:12px 20px;}
+  .progress-line{font-family:var(--font-m);font-size:12px;color:var(--text-dim);margin-bottom:8px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;}
+  .progress-line b{color:var(--gold);}
+  .ok{color:var(--moss);}
+
+  input[type=text]{width:100%;padding:12px;border-radius:3px;border:1px solid var(--line);
+    background:var(--panel);color:var(--text);font-family:var(--font-b);font-size:15px;margin-bottom:14px;}
+  label.flabel{font-family:var(--font-m);font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-dim);display:block;margin-bottom:6px;}
+
+  .journey-svg{width:100%;max-width:340px;display:block;margin:10px auto 20px;}
+  .stage-node{cursor:pointer;}
+  .stage-node.locked{cursor:default;}
+  .stage-node text{font-family:var(--font-d);font-size:11px;pointer-events:none;}
+  .stage-label{font-family:var(--font-m);font-size:10.5px;fill:var(--text-dim);text-anchor:middle;}
+
+  .loading{display:flex;align-items:center;gap:10px;color:var(--text-dim);font-family:var(--font-m);font-size:13px;padding:20px 0;}
+  .spinner{width:16px;height:16px;border-radius:50%;border:2px solid var(--line);border-top-color:var(--gold);animation:spin 0.8s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  .modal-bg{position:fixed;inset:0;background:rgba(20,25,18,0.55);z-index:50;display:flex;align-items:flex-end;justify-content:center;}
+  .modal{background:var(--panel);border-top:1px solid var(--line);border-radius:10px 10px 0 0;padding:22px 20px 30px;
+    max-width:560px;width:100%;max-height:80vh;overflow-y:auto;}
+  .modal h3{margin-bottom:14px;}
+  .cap-item{margin-bottom:14px;}
+  .cap-item .cname{font-family:var(--font-b);font-weight:600;color:var(--gold);margin-bottom:2px;}
+  .cap-item .cdesc{font-size:13px;color:var(--text-dim);}
+
+  .arch-card{border-radius:4px;padding:18px;margin-bottom:14px;border:1px solid var(--line);background:var(--panel);}
+  .arch-card.purista{border-left:3px solid var(--moss);}
+  .arch-card.guardian{border-left:3px solid var(--bronze);}
+  .arch-card.puente{border-left:3px solid var(--teal);}
+
+  .err-box{border:1px solid var(--danger);background:rgba(179,73,46,0.08);border-radius:4px;padding:14px;margin:14px 0;}
+  .err-box p{color:var(--danger);margin-bottom:10px;font-size:14px;}
+
+  .divider{height:1px;background:var(--line);margin:22px 0;}
+
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--line);cursor:pointer;display:inline-block;}
+  .dot.active{background:var(--bronze);}
+
+  .bar-row{display:flex;align-items:center;gap:10px;margin-bottom:11px;}
+  .bar-label{width:118px;font-family:var(--font-m);font-size:10.5px;color:var(--text-dim);flex-shrink:0;}
+  .bar-track{flex:1;height:8px;background:var(--bg2);border-radius:4px;overflow:hidden;}
+  .bar-fill{height:100%;background:linear-gradient(90deg,var(--moss),var(--teal));border-radius:4px;}
+  .diag-list{margin:0;padding-left:18px;}
+  .diag-list li{margin-bottom:6px;font-size:14px;}
+
+  @media print{
+    .header,.footer-bar,.no-print,.bg-contours{display:none !important;}
+    body{background:#fff;}
+    .card{border:1px solid #ccc;break-inside:avoid;}
+  }
+</style>
+</head>
+<body>
+<svg class="bg-contours" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice">
+  <g fill="none" stroke="#3F5A3A" stroke-width="0.7">
+    <path d="M-20,120 Q100,60 200,120 T420,120"/>
+    <path d="M-20,180 Q100,240 200,180 T420,180"/>
+    <path d="M-20,500 Q120,440 220,500 T440,500"/>
+    <path d="M-20,560 Q120,610 220,560 T440,560"/>
+  </g>
+  <g fill="none" stroke="#8B5530" stroke-width="0.6">
+    <path d="M-20,340 Q140,300 260,350 T440,330"/>
+  </g>
+</svg>
+<div id="app"></div>
+
+<script>
+/* ============== DATA ============== */
+const CAP_NAMES = {
+  percepcion:"Percepción", compromiso:"Compromiso", resistencia:"Resistencia",
+  discernimiento:"Discernimiento", autoridad:"Autoridad propia", costo:"Costo personal",
+  traduccion:"Traducción", coherencia:"Coherencia"
+};
+const CAPACITIES = [
+  {id:"percepcion",desc:"Notar la señal antes de que sea obvia; leer lo que el sistema todavía no admite."},
+  {id:"compromiso",desc:"Decidir sin garantías; cruzar sabiendo que no hay vuelta atrás."},
+  {id:"resistencia",desc:"Sostener el desgaste cuando la fricción se repite."},
+  {id:"discernimiento",desc:"Distinguir aliado de adversario, señal de ruido, lo urgente de lo importante."},
+  {id:"autoridad",desc:"Confiar en el juicio propio frente a la tentación de la guía externa o el consenso."},
+  {id:"costo",desc:"Disposición a pagar con reputación, relación o comodidad propia."},
+  {id:"traduccion",desc:"Convertir lo vivido en algo que otros puedan usar, no solo en anécdota."},
+  {id:"coherencia",desc:"Que lo que se hace después siga siendo fiel a lo que se dijo antes."}
+];
+
+const SKILLS = {
+  sk01:{n:"Disciplina sin atajos",d:"Hace lo mismo el día que nadie mira y el día que todos miran.",f:["coherencia","resistencia"],p:[]},
+  sk02:{n:"Formación por destreza real",d:"Prefiere formar gente que sepa sobrevivir sin él antes que gente que lo necesite.",f:["resistencia","coherencia"],p:["percepcion"]},
+  sk03:{n:"Convicción bajo cuestionamiento",d:"No cede el principio para hacer más cómoda la conversación.",f:["autoridad","coherencia"],p:["compromiso"]},
+  sk04:{n:"Ejemplo antes que discurso",d:"Exige de sí mismo antes que de otros.",f:["coherencia"],p:["resistencia","costo"]},
+  sk05:{n:"Resiste sin quejarse",d:"Sostiene el peso sin pedir que alguien lo note.",f:["resistencia","costo"],p:[]},
+  sk06:{n:"Refuerza la estructura ante la ambigüedad",d:"Trata la excepción como amenaza al sistema, no como información.",f:["coherencia","discernimiento"],p:[]},
+  sk07:{n:"Sordera al disenso",d:"Confunde la duda ajena con falta de voluntad.",f:["autoridad"],p:[]},
+  sk08:{n:"Desprecio por la ayuda externa",d:"Cruza solo lo que podría cruzar acompañado.",f:["autoridad","resistencia"],p:[]},
+  sk09:{n:"Desconfianza de lo no convencional",d:"Lee la desviación como error, no como posible ventaja.",f:["coherencia"],p:["discernimiento"]},
+  sk10:{n:"Impaciencia con el proceso",d:"Prefiere actuar ya a esperar un consenso que no llega.",f:["compromiso"],p:[]},
+  sk11:{n:"Redobla el principio",d:"Cuanto más se cuestiona el plan, más se aferra a él.",f:["coherencia","autoridad"],p:[]},
+  sk12:{n:"Aísla para proteger el código",d:"Cierra filas antes que abrir la conversación.",f:["resistencia"],p:[]},
+  sk13:{n:"Absorbe el costo sin pedir ayuda",d:"Sube la apuesta sobre sí mismo antes que ceder terreno.",f:["resistencia","costo"],p:[]},
+  sk14:{n:"Memoria de lo ya aprendido",d:"Vuelve a la lección que ya le costó una vez.",f:["discernimiento","coherencia"],p:[]},
+  sk15:{n:"Silencia la duda propia",d:"Avanza incluso cuando algo dentro de él también vacila.",f:["autoridad"],p:[]},
+  sk16:{n:"Lectura temprana del riesgo",d:"Ve la grieta antes de que sea noticia.",f:["percepcion","discernimiento"],p:[]},
+  sk17:{n:"Legitimidad institucional",d:"Sabe hablar el idioma que la junta necesita oír.",f:["traduccion","coherencia"],p:[]},
+  sk18:{n:"Protección de los más expuestos",d:"No sacrifica al más débil del sistema para salvar el plan.",f:["costo","discernimiento"],p:[]},
+  sk19:{n:"Calma bajo escrutinio",d:"Mantiene la confianza de afuera incluso cuando adentro todo tiembla.",f:["resistencia","traduccion"],p:[]},
+  sk20:{n:"Parálisis ante lo no catalogado",d:"Frente a lo que no tiene precedente, espera a que otro decida primero.",f:["discernimiento"],p:[]},
+  sk21:{n:"Confusión entre cumplir y juzgar",d:"Sigue el manual incluso cuando el manual ya no aplica.",f:["coherencia"],p:[]},
+  sk22:{n:"Lentitud para nombrar lo obvio",d:"Percibe el riesgo pronto, y aun así espera confirmación de arriba.",f:["percepcion"],p:[]},
+  sk23:{n:"Evita el conflicto necesario",d:"Prefiere la paz aparente a la fricción que resolvería el problema de raíz.",f:[],p:["compromiso"]},
+  sk24:{n:"Recurre al manual existente",d:"Busca el procedimiento ya escrito antes que inventar uno nuevo.",f:["coherencia"],p:[]},
+  sk25:{n:"Busca confirmación externa",d:"Necesita que alguien de afuera confirme que el camino es seguro.",f:["traduccion"],p:[]},
+  sk26:{n:"Prioriza no empeorar la situación",d:"Elige la opción más reversible, aunque sea la más lenta.",f:["resistencia","costo"],p:[]},
+  sk27:{n:"Escala a la autoridad",d:"Pasa la decisión a quien tiene el cargo, no a quien tiene el criterio.",f:["traduccion"],p:[]},
+  sk28:{n:"Traducción entre lógicas opuestas",d:"Encuentra la palabra que ambos bandos pueden aceptar sin traicionarse.",f:["traduccion","discernimiento"],p:[]},
+  sk29:{n:"Construcción de terceras opciones",d:"No elige entre las dos salidas ofrecidas: inventa una tercera.",f:["discernimiento","percepcion"],p:[]},
+  sk30:{n:"Indecisión leída como falta de convicción",d:"Tarda en decidir lo que ya sabe, esperando que nadie tenga que perder.",f:[],p:["compromiso"]},
+  sk31:{n:"Pertenencia a ninguno de los dos bandos",d:"Ambos lados sospechan de su lealtad precisamente porque no es de nadie.",f:[],p:[]},
+  sk32:{n:"Evita ser quien paga el costo",d:"Construye el puente y deja que otro decida quién lo cruza primero.",f:[],p:[]},
+  sk33:{n:"Sobreadapta su propio criterio",d:"Termina hablando con la voz de la última persona que escuchó.",f:["traduccion"],p:[]},
+  sk34:{n:"Ofrece una salida en la que nadie termina de creer del todo",d:"Consigue que todos digan que sí, sin que nadie diga que sí del todo.",f:["traduccion"],p:[]},
+  sk35:{n:"Cede su lectura a la del grupo",d:"Deja que la lectura compartida reemplace la propia, incluso cuando esta última era más precisa.",f:[],p:[]}
+};
+
+const TREES = {
+  purista:{name:"El Purista",accent:"var(--moss)",cls:"purista",
+    philosophy:"Las reglas se prueban, no se debaten. Enseña destreza antes que consuelo, sostiene el mismo principio en la calma y en la tormenta, y mide el liderazgo por lo que su gente puede hacer sin él delante.",
+    character:"Inspirado en Ben, el padre",
+    characterDetail:"Cría a sus seis hijos aislado en el bosque, con un régimen diario de entrenamiento físico y estudio que no negocia ni siquiera frente a la muerte de su esposa. Insiste en decirles la verdad más cruda sin suavizarla nunca, convencido de que protegerlos de la realidad sería la traición más grande.",
+    fortaleza:["sk01","sk02","sk03","sk04","sk05"],
+    puntoCiego:["sk06","sk07","sk08","sk09","sk10"],
+    bajoPresion:["sk11","sk12","sk13","sk14","sk15"]},
+  guardian:{name:"El Guardián",accent:"var(--bronze)",cls:"guardian",
+    philosophy:"La seguridad no es cobardía: es memoria de lo que ya costó aprender. Protege el sistema, cuida a quien tiene menos margen de error, y prefiere la lentitud prudente a la audacia sin red.",
+    character:"Inspirado en Jack, el abuelo",
+    characterDetail:"Exige la custodia legal de sus nietos, impone un funeral religioso convencional que contradice la voluntad de su hija, y defiende la escuela formal frente a la crianza radical de su yerno. Ya vio de cerca el costo de la vida que Ben eligió, y no está dispuesto a dejar que los niños lo paguen también.",
+    fortaleza:["sk14","sk16","sk17","sk18","sk19"],
+    puntoCiego:["sk20","sk21","sk22","sk09","sk23"],
+    bajoPresion:["sk24","sk25","sk26","sk27","sk06"]},
+  puente:{name:"El Puente",accent:"var(--teal)",cls:"puente",
+    philosophy:"Ningún bando tiene toda la razón. Traduce entre lógicas que no se hablan, construye lo que cabe entre dos posturas opuestas, y paga el precio de no pertenecer del todo a ninguna.",
+    character:"Inspirado en Bo, el hijo mayor",
+    characterDetail:"Fue formado por completo bajo el régimen de su padre, y aun así solicita en secreto el ingreso a varias universidades — es aceptado en todas, sin que Ben lo supiera. No rechaza la disciplina que recibió ni acepta sin más el mundo convencional que su padre despreciaba: al final construye un camino que no es del todo ni uno ni el otro.",
+    fortaleza:["sk16","sk28","sk18","sk29","sk05"],
+    puntoCiego:["sk30","sk31","sk32","sk33","sk23"],
+    bajoPresion:["sk25","sk13","sk34","sk35","sk26"]}
+};
+const CAT_LABELS = {fortaleza:"Fortalezas",puntoCiego:"Puntos ciegos",bajoPresion:"Bajo presión"};
+
+const STAGES = [
+  {id:1,name:"Mundo y llamado",
+   theme:"El estado antes de la grieta, y la grieta misma. Todavía se puede decir que no.",
+   meaning:"Toda historia empieza en un equilibrio que ya no puede sostenerse. Esta etapa es la primera grieta en lo que parecía estable — el momento en que todavía se puede mirar hacia otro lado, aunque cada vez cuesta más hacerlo.",
+   fuerte:["percepcion","autoridad"],fondo:["compromiso"]},
+  {id:2,name:"Umbral",
+   theme:"La ayuda que aparece justo antes de que la vuelta atrás deje de ser una opción real.",
+   meaning:"Cruzar significa que ya no hay vuelta atrás sencilla. Esta etapa pide comprometerse con una decisión sin garantías, apoyado —o no— en quien pueda ayudar a dar el paso.",
+   fuerte:["compromiso","costo"],fondo:["autoridad"]},
+  {id:3,name:"Las pruebas",
+   theme:"Donde el código del personaje se pone a prueba contra el mundo, una y otra vez.",
+   meaning:"El camino no se prueba una sola vez: se prueba muchas veces, con fricciones que se repiten y desgastan. Esta etapa mide si el criterio se sostiene cuando ya no es la primera vez que se exige, sino la quinta.",
+   fuerte:["resistencia","discernimiento"],fondo:["coherencia"]},
+  {id:4,name:"La crisis",
+   theme:"El punto de mayor riesgo, la bisagra de todo el viaje.",
+   meaning:"El punto de mayor riesgo del viaje. Lo que se decide aquí pesa más que cualquier decisión anterior, y su costo — para uno mismo o para otros — ya no se puede evitar del todo.",
+   fuerte:["discernimiento","costo"],fondo:["resistencia"]},
+  {id:5,name:"El regreso transformado",
+   theme:"Volver siendo otro, trayendo algo que el mundo dejado atrás no tenía.",
+   meaning:"Volver no es repetir el punto de partida. Esta etapa pide traducir lo vivido en algo que otros puedan usar, sin perder en el camino la coherencia con quien se fue.",
+   fuerte:["traduccion","coherencia"],fondo:["autoridad"]}
+];
+
+const PROBLEMS = [
+  {sector:"Banca corporativa",title:"El cliente que se va callado",
+   text:"Hace once años que la cuenta de Manufacturas del Cauca no ha dado un solo problema. Pagos a tiempo, línea de crédito usada con cabeza, una relación tan estable que hace tres trimestres nadie en el equipo la revisa con verdadera atención. El viernes, sin embargo, alguien del área de tesorería pregunta por los requisitos para trasladar sus cuentas a otro banco — como quien pregunta por curiosidad, no como quien ya firmó. No hay queja formal. No hay incidente que señalar en la bitácora. Solo esa pregunta, hecha con demasiada calma, y el hecho de que en las últimas tres reuniones el gerente de la empresa canceló a última hora, alegando siempre lo mismo: que algo urgente le salió."},
+  {sector:"Software financiero",title:"La migración que nadie pidió",
+   text:"El sistema que procesa las transacciones lleva catorce años funcionando sin una sola caída grave. Fue construido por un equipo que ya no está, en un lenguaje que cada vez menos ingenieros jóvenes saben leer, y sostenido durante todo este tiempo por dos personas que conocen cada rincón de su lógica de memoria. Esta semana, una de esas dos personas avisa que se retira en cuatro meses. La otra lleva ya un tiempo insinuando, sin decirlo del todo, que está cansada de ser la única que entiende cómo respira ese sistema por dentro."},
+  {sector:"Manufactura",title:"El proveedor que empezó a fallar",
+   text:"Durante quince años, la planta ha dependido de un solo proveedor para el componente más delicado de su línea de ensamblaje — una relación construida sobre confianza personal más que sobre contrato, con precios que ningún competidor ha podido igualar. En el último trimestre, dos entregas llegaron tarde y una llegó con piezas defectuosas, sin explicación satisfactoria. El proveedor pide paciencia, alega problemas temporales. Buscar una alternativa ahora significa mover una pieza que sostiene todo lo demás, y significa también, probablemente, herir una relación que nunca fue solo de negocios."},
+  {sector:"Sistema de salud",title:"La sala de espera más larga",
+   text:"El área de urgencias ha operado, desde hace dos años, con un protocolo de triage diseñado por la directora médica actual — un sistema que redujo notablemente los tiempos de espera y que el personal más antiguo aprendió a defender con orgullo. Un estudio externo, encargado por la junta, acaba de señalar que ese mismo protocolo podría estar retrasando la atención de un grupo específico de pacientes que no encajan bien en sus categorías. La directora no ha visto todavía el estudio completo. La junta ya lo tiene sobre la mesa."},
+  {sector:"Educación",title:"El aula que se dividió sola",
+   text:"Un maestro con quince años en la institución construyó, casi sin que nadie se lo pidiera, un método propio para enseñar matemáticas — resultados excelentes, evaluaciones que lo confirman año tras año, pero un método que no se parece a nada de lo que dicta el currículo oficial ni a lo que hacen sus colegas. Algunos padres lo defienden con vehemencia. Otros piden, cada vez con más insistencia, que su hijo sea cambiado a otro salón. La rectoría lleva meses postergando una conversación que ya no puede seguir postergando."},
+  {sector:"Consultoría estratégica",title:"La propuesta que llegó sin pedirse",
+   text:"Un consultor junior, dos años en la firma, entregó — por iniciativa propia, un fin de semana, sin que nadie se lo encargara — un análisis que contradice de fondo la estrategia que el equipo lleva ocho meses construyendo para su cliente más importante. El análisis es incómodamente bueno. La presentación final al cliente es en diez días. El socio a cargo del proyecto todavía no ha decidido si mostrárselo a nadie más."},
+  {sector:"Retail",title:"El local que dejó de ser rentable",
+   text:"La tienda insignia de la cadena, la primera que abrió hace veintitrés años, la que aparece en toda la publicidad institucional, lleva seis trimestres seguidos perdiendo dinero — mientras dos locales nuevos, sin historia ni simbolismo, generan más del doble de margen con la mitad del personal. El comité financiero ya preparó la cifra exacta de lo que costaría cerrarla. Nadie, todavía, se ha atrevido a ponerla sobre la mesa en una reunión donde esté presente el fundador."}
+];
+
+const STYLE = "Escribes como un ensayista latinoamericano: prosa con textura sensorial, frases largas que acumulan con comas (nunca conectores lógicos explícitos como 'por lo tanto', 'sin embargo', 'es decir'), alternadas con frases cortas que golpean como cierre. Nunca uses la construcción 'No es X sino Y'. Evita adjetivos blandos de cierre como 'profundo', 'significativo' o 'importante'. Evita gerundios encadenados. No expliques la lección ni resumas al final: deja una imagen o una tensión abierta. Nunca escribas frases como 'nos invita a reflexionar' o 'nos lleva a preguntarnos'. Responde siempre en español.";
+
+/* ============== STATE ============== */
+let state = {
+  screen:"intro",
+  problem:null,
+  hero:{name:"",acquired:{}},
+  activeTab:"purista",
+  capIndex:0,
+  currentStage:0,
+  stages:[],
+  remaining:[],
+  loading:false,
+  loadError:null,
+  showGlossary:false,
+  diag:null
+};
+
+/* ============== HELPERS ============== */
+function acquiredCount(){ return Object.keys(state.hero.acquired).length; }
+function countByCat(cat){ return Object.values(state.hero.acquired).filter(a=>a.cat===cat).length; }
+function allAcquiredIds(){ return Object.keys(state.hero.acquired); }
+
+function capTags(sk){
+  let tags=[];
+  sk.f.forEach(c=>tags.push({name:CAP_NAMES[c],strong:true}));
+  sk.p.forEach(c=>tags.push({name:CAP_NAMES[c],strong:false}));
+  return tags;
+}
+
+function calcFit(spentIds, stage){
+  let score=0;
+  spentIds.forEach(id=>{
+    const sk=SKILLS[id];
+    stage.fuerte.forEach(c=>{ if(sk.f.includes(c)) score+=2; if(sk.p.includes(c)) score+=1; });
+    stage.fondo.forEach(c=>{ if(sk.f.includes(c)) score+=1; if(sk.p.includes(c)) score+=0.5; });
+  });
+  const ratio = score/(spentIds.length*2);
+  if(ratio>=0.55) return "fuerte encaje";
+  if(ratio>=0.22) return "encaje parcial";
+  return "encaje forzado";
+}
+
+function computeCapacityProfile(){
+  let scores = {}; CAPACITIES.forEach(c=>scores[c.id]=0);
+  allAcquiredIds().forEach(id=>{
+    const sk = SKILLS[id];
+    sk.f.forEach(c=>scores[c]+=2);
+    sk.p.forEach(c=>scores[c]+=1);
+  });
+  const max = Math.max(1, ...Object.values(scores));
+  return CAPACITIES.map(c=>({id:c.id,name:CAP_NAMES[c.id],pct:Math.round(scores[c.id]/max*100)}));
+}
+
+async function callClaude(system,user,maxTokens){
+  const response = await fetch("https://api.anthropic.com/v1/messages",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      model:"claude-sonnet-4-6",
+      max_tokens:maxTokens||1000,
+      system:system,
+      messages:[{role:"user",content:user}]
+    })
+  });
+  const data = await response.json();
+  if(!data.content) throw new Error("Respuesta vacía");
+  return data.content.filter(b=>b.type==="text").map(b=>b.text).join("\n").trim();
+}
+
+/* ============== RENDER ROOT ============== */
+function render(){
+  const app = document.getElementById("app");
+  let html = "";
+  if(state.screen!=="intro") html += renderHeader();
+  switch(state.screen){
+    case "intro": html += renderIntro(); break;
+    case "problem": html += renderProblem(); break;
+    case "archetypes": html += renderArchetypes(); break;
+    case "capacities": html += renderCapacities(); break;
+    case "builder": html += renderBuilder(); break;
+    case "journey": html += renderJourney(); break;
+    case "stage": html += renderStage(); break;
+    case "diagnostic": html += renderDiagnostic(); break;
+  }
+  if(state.showGlossary) html += renderGlossary();
+  app.innerHTML = html;
+  bindEvents();
+}
+
+function renderHeader(){
+  return `<div class="header">
+    <div class="logo">EL MAPA QUE AÚN NO EXISTE</div>
+    <button class="info-btn" id="btn-glossary">i</button>
+  </div>`;
+}
+
+function renderGlossary(){
+  return `<div class="modal-bg" id="modal-bg">
+    <div class="modal">
+      <h3>La brújula de exigencias</h3>
+      <p class="dim" style="margin-bottom:16px;font-size:13px;">Ocho capacidades que cada etapa del viaje pone a prueba, en proporciones distintas.</p>
+      ${CAPACITIES.map(c=>`<div class="cap-item"><div class="cname">${CAP_NAMES[c.id]}</div><div class="cdesc">${c.desc}</div></div>`).join("")}
+      <button class="btn ghost" id="btn-close-modal">Cerrar</button>
+    </div>
+  </div>`;
+}
+
+/* ============== SCREEN: INTRO ============== */
+function renderIntro(){
+  return `<div class="screen" style="display:flex;flex-direction:column;justify-content:center;min-height:100vh;">
+    <div class="eyebrow">Liderazgo en escena</div>
+    <h1 style="margin-bottom:18px;">El mapa que<br>aún no existe</h1>
+    <p class="italic" style="margin-bottom:28px;">Vas a construir un héroe con fragmentos de tres maneras distintas de liderar, y vas a atravesar con él un viaje que todavía no conoces por completo. Cada habilidad que elijas hoy es un recurso que no vuelve una vez lo gastes.</p>
+    <button class="btn" id="btn-start">Comenzar</button>
+  </div>`;
+}
+
+/* ============== SCREEN: PROBLEM ============== */
+function renderProblem(){
+  const pr = state.problem;
+  return `<div class="screen">
+    <div class="eyebrow">${pr.sector}</div>
+    <h2 style="margin-bottom:16px;">${pr.title}</h2>
+    <div class="card dossier"><p style="margin:0;">${pr.text}</p></div>
+    <div style="margin-top:14px;">
+      <button class="btn ghost" id="btn-shuffle">🔀 Ver otra situación</button>
+    </div>
+    <div class="divider"></div>
+    <p class="dim" style="font-size:13px;">Esto es apenas el comienzo. Lo que sigue depende de a quién construyas para enfrentarlo.</p>
+    <button class="btn" id="btn-to-archetypes">Conocer a los tres arquetipos</button>
+  </div>`;
+}
+
+/* ============== SCREEN: ARCHETYPES ============== */
+function renderArchetypes(){
+  let html = `<div class="screen"><h2 style="margin-bottom:6px;">Tres maneras de liderar</h2>
+  <p class="dim" style="margin-bottom:4px;font-size:14px;">Ninguna es la correcta. Cada una sostiene algo distinto, y cada una tiene un costo que no siempre se ve a tiempo.</p>
+  <p class="dim" style="margin-bottom:18px;font-size:13px;">Los tres están inspirados en tres personajes de <span class="italic" style="font-size:13px;">Capitán Fantástico</span> (2016).</p>`;
+  Object.keys(TREES).forEach(k=>{
+    const t = TREES[k];
+    html += `<div class="arch-card ${t.cls}">
+      <h3 style="color:${t.accent};">${t.name}</h3>
+      <p style="font-size:14px;margin-top:8px;">${t.philosophy}</p>
+      <div class="divider" style="margin:12px 0;"></div>
+      <div class="eyebrow" style="color:${t.accent};margin-bottom:4px;">${t.character}</div>
+      <p style="font-size:13.5px;margin:0;color:var(--text-dim);">${t.characterDetail}</p>
+    </div>`;
+  });
+  html += `<button class="btn" id="btn-to-capacities">Conocer la brújula de exigencias</button></div>`;
+  return html;
+}
+
+/* ============== SCREEN: CAPACITIES ============== */
+function renderCapacities(){
+  const i = state.capIndex||0;
+  const c = CAPACITIES[i];
+  return `<div class="screen">
+    <div class="eyebrow">La brújula de exigencias</div>
+    <h2 style="margin-bottom:10px;">Ocho capacidades</h2>
+    <p class="dim" style="margin-bottom:18px;font-size:14px;">Cada etapa del viaje pone a prueba algunas de estas capacidades, sin nombrarlas nunca de forma directa. Vale la pena conocerlas antes de construir a tu héroe.</p>
+    <div class="card" style="min-height:140px;">
+      <div class="eyebrow" style="color:var(--bronze);">${i+1} / ${CAPACITIES.length}</div>
+      <h3 style="margin-bottom:10px;">${CAP_NAMES[c.id]}</h3>
+      <p style="margin:0;">${c.desc}</p>
+    </div>
+    <div style="display:flex;gap:8px;margin:14px 0;">
+      <button class="btn ghost small" id="cap-prev" ${i===0?"disabled":""}>‹ Anterior</button>
+      <button class="btn ghost small" id="cap-next" ${i===CAPACITIES.length-1?"disabled":""}>Siguiente ›</button>
+    </div>
+    <div style="display:flex;gap:6px;justify-content:center;margin-bottom:26px;">
+      ${CAPACITIES.map((cc,idx)=>`<span class="dot ${idx===i?'active':''}" data-jump="${idx}"></span>`).join("")}
+    </div>
+    <button class="btn" id="btn-to-builder">Construir mi héroe</button>
+  </div>`;
+}
+
+/* ============== SCREEN: BUILDER ============== */
+function renderBuilder(){
+  const tree = TREES[state.activeTab];
+  const total = acquiredCount();
+  const fC = countByCat("fortaleza"), pC = countByCat("puntoCiego"), bC = countByCat("bajoPresion");
+  const canProceed = total===18 && fC>=3 && pC>=3 && bC>=3 && state.hero.name.trim().length>0;
+
+  let html = `<div class="screen" style="padding-bottom:170px;">
+    <h2 style="margin-bottom:10px;">Construye tu héroe</h2>
+    <div class="card" style="margin-bottom:16px;">
+      <p style="margin:0;font-size:14px;">Vas a elegir <b>dieciocho habilidades</b> en total, sin importar de qué árbol vengan. Necesitas al menos <b>tres Fortalezas</b>, <b>tres Puntos ciegos</b> y <b>tres comportamientos Bajo presión</b> — ningún héroe evita tener vulnerabilidades. Una vez comience el viaje, cada habilidad que gastes ya no vuelve.</p>
+    </div>
+    <label class="flabel">Nombre del héroe o heroína</label>
+    <input type="text" id="hero-name" placeholder="¿Cómo se llama?" value="${state.hero.name}">
+
+    <div class="tabs">
+      ${Object.keys(TREES).map(k=>`<div class="tab ${state.activeTab===k?'active':''}" data-t="${k}">${TREES[k].name}</div>`).join("")}
+    </div>
+    <p class="dim" style="font-size:13px;margin-bottom:4px;">${tree.philosophy}</p>
+  `;
+
+  ["fortaleza","puntoCiego","bajoPresion"].forEach(cat=>{
+    html += `<div class="cat-label">${CAT_LABELS[cat]}</div>`;
+    tree[cat].forEach(id=>{
+      const sk = SKILLS[id];
+      const acq = state.hero.acquired[id];
+      const ownedHere = acq && acq.tree===state.activeTab && acq.cat===cat;
+      const ownedElsewhere = acq && !ownedHere;
+      const tags = capTags(sk);
+      html += `<div class="skill-card ${ownedHere?'selected':''} ${ownedElsewhere?'disabled':''}" ${ownedElsewhere?'':`data-sid="${id}" data-cat="${cat}"`}>
+        <div class="sname">${sk.n}</div>
+        <div class="sdesc">${sk.d}</div>
+        <div class="stags">
+          ${tags.map(t=>`<span class="tag ${ownedElsewhere?'owned-else':''}">${t.name}</span>`).join("")}
+          ${ownedElsewhere?`<span class="tag owned-else">ya la tienes (vía ${TREES[acq.tree].name})</span>`:""}
+        </div>
+      </div>`;
+    });
+  });
+
+  html += `</div>
+  <div class="footer-bar">
+    <div class="progress-line">
+      <span><b>${total}/18</b> elegidas</span>
+      <span class="${fC>=3?'ok':''}">Fortalezas ${fC}/3</span>
+      <span class="${pC>=3?'ok':''}">Puntos ciegos ${pC}/3</span>
+      <span class="${bC>=3?'ok':''}">Bajo presión ${bC}/3</span>
+    </div>
+    <button class="btn" id="btn-start-journey" ${canProceed?"":"disabled"}>Comenzar el viaje</button>
+  </div>`;
+  return html;
+}
+
+/* ============== SCREEN: JOURNEY MAP ============== */
+const NODE_POS = [
+  {x:150,y:40},{x:254.6,y:116},{x:214.7,y:239},{x:85.3,y:239},{x:45.4,y:116}
+];
+function renderJourney(){
+  let path = "M"+NODE_POS.map(p=>p.x+","+p.y).join(" L");
+  let nodesHtml = "";
+  STAGES.forEach((s,i)=>{
+    const pos = NODE_POS[i];
+    const done = i < state.currentStage;
+    const active = i === state.currentStage;
+    const locked = i > state.currentStage;
+    const fill = done ? "var(--moss)" : active ? "var(--gold)" : "var(--panel)";
+    const stroke = locked ? "var(--line)" : (done ? "var(--moss)" : "var(--gold)");
+    const textFill = locked ? "var(--ink)" : "var(--cream-text)";
+    nodesHtml += `<g class="stage-node ${locked?'locked':''}" ${locked?'':`data-stage="${i}"`}>
+      <circle cx="${pos.x}" cy="${pos.y}" r="20" fill="${fill}" stroke="${stroke}" stroke-width="1.5"/>
+      <text x="${pos.x}" y="${pos.y+4}" text-anchor="middle" fill="${textFill}">${done?"✓":(i+1)}</text>
+      <text class="stage-label" x="${pos.x}" y="${pos.y+36}">${s.name}</text>
+    </g>`;
+  });
+  return `<div class="screen">
+    <h2 style="margin-bottom:4px;">${state.hero.name}</h2>
+    <p class="dim" style="font-size:13px;margin-bottom:6px;">Habilidades restantes: <b style="color:var(--gold);">${state.remaining.length}</b></p>
+    <svg class="journey-svg" viewBox="0 0 300 300">
+      <path d="${path}" fill="none" stroke="var(--line)" stroke-width="1.5" stroke-dasharray="4 4"/>
+      ${nodesHtml}
+    </svg>
+    <p class="dim" style="text-align:center;font-size:13px;">${state.currentStage<5 ? "Toca la etapa activa para continuar." : ""}</p>
+  </div>`;
+}
+
+/* ============== SCREEN: STAGE ============== */
+function renderStage(){
+  const idx = state.currentStage;
+  const stage = STAGES[idx];
+  const sd = state.stages[idx];
+
+  let html = `<div class="screen" style="padding-bottom:170px;">
+    <div class="eyebrow">Etapa ${idx+1} de 5</div>
+    <h2 style="margin-bottom:14px;">${stage.name}</h2>`;
+
+  if(!sd.narrative){
+    html += `<div class="loading"><div class="spinner"></div> Escribiendo la situación…</div></div>`;
+    return html;
+  }
+
+  html += `<div class="card" style="background:var(--bg2);border-left:3px solid var(--bronze);margin-bottom:14px;">
+    <div class="eyebrow" style="color:var(--bronze);margin-bottom:4px;">Qué representa esta etapa</div>
+    <p style="margin:0;font-size:14px;">${stage.meaning}</p>
+  </div>`;
+
+  html += `<div class="card dossier"><p style="margin:0;">${sd.narrative}</p></div>`;
+
+  if(sd.consequence){
+    html += `<div class="divider"></div><h3 style="margin-bottom:10px;">Lo que ocurrió</h3>
+      <div class="card"><p style="margin:0;">${sd.consequence}</p></div>
+      <button class="btn" id="btn-next-stage" style="margin-top:16px;">${idx===4?"Ver el diagnóstico":"Continuar"}</button>
+      </div>`;
+    return html;
+  }
+
+  if(state.loading){
+    html += `<div class="loading"><div class="spinner"></div> Calculando lo que esto les costó…</div></div>`;
+    return html;
+  }
+
+  const minReq = Math.min(3, state.remaining.length);
+  const sel = sd.selecting || [];
+
+  html += `<div class="divider"></div><h3 style="margin-bottom:4px;">Elige cómo responder</h3>
+  <p class="dim" style="font-size:13px;margin-bottom:6px;">${state.remaining.length<3 ? `Solo te quedan ${state.remaining.length}: úsalas todas.` : "Elige al menos tres habilidades de las que aún te quedan — pueden venir de una sola categoría o repartirse entre las tres."}</p>
+  <p style="font-size:13px;margin-bottom:16px;color:var(--bronze);">Piensa también en tus puntos ciegos y en cómo reaccionas bajo presión: cada situación puede activarlos tanto como a tus fortalezas.</p>`;
+
+  ["fortaleza","puntoCiego","bajoPresion"].forEach(cat=>{
+    const idsInCat = state.remaining.filter(id=>state.hero.acquired[id].cat===cat);
+    if(idsInCat.length===0) return;
+    html += `<div class="cat-label">${CAT_LABELS[cat]}</div>`;
+    idsInCat.forEach(id=>{
+      const sk = SKILLS[id];
+      const isSel = sel.includes(id);
+      const tags = capTags(sk);
+      html += `<div class="skill-card ${isSel?'selected':''}" data-spend="${id}">
+        <div class="sname">${sk.n}</div>
+        <div class="sdesc">${sk.d}</div>
+        <div class="stags">${tags.map(t=>`<span class="tag">${t.name}</span>`).join("")}</div>
+      </div>`;
+    });
+  });
+
+  html += `</div>
+  <div class="footer-bar">
+    <div class="progress-line"><span>${sel.length} seleccionadas · mínimo ${minReq}</span></div>
+    <button class="btn" id="btn-confirm-spend" ${sel.length>=minReq?"":"disabled"}>Confirmar</button>
+  </div>`;
+  return html;
+}
+
+/* ============== SCREEN: DIAGNOSTIC ============== */
+function renderDiagnostic(){
+  const profile = computeCapacityProfile();
+  let html = `<div class="screen">
+    <div class="eyebrow">Diagnóstico</div>
+    <h2 style="margin-bottom:4px;">${state.hero.name}</h2>`;
+
+  html += state.diag && state.diag.epiteto
+    ? `<p class="italic" style="font-size:16px;margin-bottom:20px;">${state.diag.epiteto}</p>`
+    : `<p class="dim" style="margin-bottom:20px;">…</p>`;
+
+  html += `<div class="card">
+    <h3 style="margin-bottom:14px;">Tu brújula</h3>
+    ${profile.map(p=>`
+      <div class="bar-row">
+        <div class="bar-label">${p.name}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${Math.max(6,p.pct)}%;"></div></div>
+      </div>`).join("")}
+  </div>`;
+
+  if(!state.diag){
+    html += `<div class="loading"><div class="spinner"></div> Escribiendo el retrato…</div></div>`;
+    return html;
+  }
+
+  html += `<div class="card"><div class="eyebrow" style="color:var(--moss);">Fortalezas dominantes</div>
+    <ul class="diag-list">${state.diag.fortalezas_dominantes.map(x=>`<li>${x}</li>`).join("")}</ul></div>`;
+  html += `<div class="card"><div class="eyebrow" style="color:var(--bronze);">Puntos ciegos activos</div>
+    <ul class="diag-list">${state.diag.puntos_ciegos_activos.map(x=>`<li>${x}</li>`).join("")}</ul></div>`;
+  html += `<div class="card"><div class="eyebrow" style="color:var(--teal);">Bajo presión</div>
+    <ul class="diag-list">${state.diag.bajo_presion.map(x=>`<li>${x}</li>`).join("")}</ul></div>`;
+
+  html += `<div class="card"><h3 style="margin-bottom:8px;">Dónde puede acertar</h3><p style="margin:0;">${state.diag.situaciones_acierta}</p></div>`;
+  html += `<div class="card"><h3 style="margin-bottom:8px;">Qué vigilar</h3><p style="margin:0;">${state.diag.que_vigilar}</p></div>`;
+
+  html += `<p class="italic" style="font-size:17px;text-align:center;margin:24px 0;">${state.diag.imagen_cierre}</p>`;
+
+  html += `<div class="no-print">
+    <button class="btn" id="btn-print">Descargar tu brújula (PDF)</button>
+    <button class="btn ghost" id="btn-restart" style="margin-top:10px;">Construir otro héroe</button>
+  </div></div>`;
+  return html;
+}
+
+/* ============== EVENT BINDING ============== */
+function bindEvents(){
+  const $ = s=>document.querySelector(s);
+  const $$ = s=>document.querySelectorAll(s);
+
+  if($("#btn-glossary")) $("#btn-glossary").onclick = ()=>{ state.showGlossary=true; render(); };
+  if($("#btn-close-modal")) $("#btn-close-modal").onclick = ()=>{ state.showGlossary=false; render(); };
+  if($("#modal-bg")) $("#modal-bg").addEventListener("click",(e)=>{ if(e.target.id==="modal-bg"){ state.showGlossary=false; render(); }});
+
+  if($("#btn-start")) $("#btn-start").onclick = ()=>{
+    state.problem = PROBLEMS[Math.floor(Math.random()*PROBLEMS.length)];
+    state.screen = "problem";
+    render();
+  };
+
+  if($("#btn-shuffle")) $("#btn-shuffle").onclick = ()=>{
+    let next;
+    do{ next = PROBLEMS[Math.floor(Math.random()*PROBLEMS.length)]; } while(next.title===state.problem.title && PROBLEMS.length>1);
+    state.problem = next;
+    render();
+  };
+
+  if($("#btn-to-archetypes")) $("#btn-to-archetypes").onclick = ()=>{ state.screen="archetypes"; render(); };
+  if($("#btn-to-capacities")) $("#btn-to-capacities").onclick = ()=>{ state.screen="capacities"; render(); };
+  if($("#cap-prev")) $("#cap-prev").onclick = ()=>{ state.capIndex = Math.max(0,(state.capIndex||0)-1); render(); };
+  if($("#cap-next")) $("#cap-next").onclick = ()=>{ state.capIndex = Math.min(CAPACITIES.length-1,(state.capIndex||0)+1); render(); };
+  $$(".dot[data-jump]").forEach(el=>{ el.onclick = ()=>{ state.capIndex = parseInt(el.dataset.jump); render(); }; });
+  if($("#btn-to-builder")) $("#btn-to-builder").onclick = ()=>{ state.screen="builder"; render(); };
+
+  if($("#hero-name")) $("#hero-name").oninput = (e)=>{ state.hero.name = e.target.value; refreshFooterOnly(); };
+
+  $$(".tab").forEach(el=>{
+    el.onclick = ()=>{ state.activeTab = el.dataset.t; render(); };
+  });
+
+  $$(".skill-card[data-sid]").forEach(el=>{
+    el.onclick = ()=>{
+      const id = el.dataset.sid, cat = el.dataset.cat;
+      const acq = state.hero.acquired[id];
+      if(acq && acq.tree===state.activeTab && acq.cat===cat){
+        delete state.hero.acquired[id];
+      } else if(!acq){
+        if(acquiredCount()>=18) return;
+        state.hero.acquired[id] = {tree:state.activeTab, cat:cat};
+      }
+      render();
+    };
+  });
+
+  if($("#btn-start-journey")) $("#btn-start-journey").onclick = ()=>{
+    state.remaining = allAcquiredIds();
+    state.stages = STAGES.map(()=>({narrative:null,spent:null,consequence:null,selecting:[]}));
+    state.stages[0].narrative = state.problem.text;
+    state.currentStage = 0;
+    state.screen = "journey";
+    render();
+  };
+
+  $$(".stage-node[data-stage]").forEach(el=>{
+    el.onclick = ()=>{
+      const i = parseInt(el.dataset.stage);
+      if(i !== state.currentStage) return;
+      state.screen = "stage";
+      render();
+      if(!state.stages[i].narrative){
+        loadStageNarrative(i);
+      }
+    };
+  });
+
+  $$(".skill-card[data-spend]").forEach(el=>{
+    el.onclick = ()=>{
+      const id = el.dataset.spend;
+      const sd = state.stages[state.currentStage];
+      if(!sd.selecting) sd.selecting=[];
+      const pos = sd.selecting.indexOf(id);
+      if(pos>=0) sd.selecting.splice(pos,1);
+      else sd.selecting.push(id);
+      render();
+    };
+  });
+
+  if($("#btn-confirm-spend")) $("#btn-confirm-spend").onclick = ()=>{ confirmSpend(); };
+  if($("#btn-next-stage")) $("#btn-next-stage").onclick = ()=>{ advanceStage(); };
+  if($("#btn-print")) $("#btn-print").onclick = ()=>{ window.print(); };
+  if($("#btn-restart")) $("#btn-restart").onclick = ()=>{ location.reload(); };
+}
+
+function refreshFooterOnly(){
+  const btn = document.getElementById("btn-start-journey");
+  if(btn){
+    const canProceed = acquiredCount()===18 && countByCat("fortaleza")>=3 && countByCat("puntoCiego")>=3 && countByCat("bajoPresion")>=3 && state.hero.name.trim().length>0;
+    btn.disabled = !canProceed;
+  }
+}
+
+/* ============== ASYNC FLOWS ============== */
+async function loadStageNarrative(idx){
+  const stage = STAGES[idx];
+  const prev = state.stages[idx-1];
+  try{
+    const text = await callClaude(
+      STYLE + " Escribes la etapa narrativa de un ejercicio de liderazgo, continuación directa del mismo conflicto que ya viene ocurriendo. No nombres explícitamente ninguna de estas capacidades: " + stage.fuerte.concat(stage.fondo).map(c=>CAP_NAMES[c]).join(", ") + " — deben sentirse en la situación, nunca decirse con esas palabras. No resuelvas nada, no sugieras qué decisión tomar. Responde ÚNICAMENTE con el texto, sin preámbulos ni título. Extensión: 110-170 palabras.",
+      "Problema inicial:\n" + state.problem.text + "\n\nLo que pasó en la etapa anterior:\n" + (prev.consequence||"") + "\n\nEsta nueva etapa se llama '" + stage.name + "' y representa: " + stage.theme + "\nEscribe la situación de esta etapa.",
+      600
+    );
+    state.stages[idx].narrative = text;
+  }catch(e){
+    state.loadError = "No se pudo generar la etapa. Revisa tu conexión e intenta de nuevo.";
+  }
+  render();
+}
+
+function confirmSpend(){
+  const idx = state.currentStage;
+  const sd = state.stages[idx];
+  const stage = STAGES[idx];
+  const spent = sd.selecting.slice();
+  sd.spent = spent;
+  const fit = calcFit(spent, stage);
+  state.loading = true;
+  render();
+
+  const skillLines = spent.map(id=>SKILLS[id].n+": "+SKILLS[id].d).join("; ");
+  const shortfall = state.remaining.length < 3 ? " El equipo llegó a esta etapa con menos de tres habilidades disponibles y tuvo que usar todas las que le quedaban." : "";
+
+  callClaude(
+    STYLE + " Escribes la consecuencia narrativa de las decisiones que un equipo tomó en una etapa de un ejercicio de liderazgo. Nunca digas explícitamente 'acertaron' o 'fallaron', nunca des una nota ni un puntaje. Muestra la consecuencia como parte de la historia que sigue, casi siempre con algo que se gana y algo que tiene un costo. El nivel de encaje entre lo que trajeron y lo que la situación pedía fue: " + fit + " — que esto se sienta en el tono y en lo narrado, sin nombrarlo ni explicarlo directamente. Refiérete al héroe por su nombre, sin pronombres marcados por género. Responde ÚNICAMENTE con el texto. Extensión: 90-150 palabras.",
+    "Situación de la etapa:\n" + sd.narrative + "\n\nHabilidades que " + state.hero.name + " decidió usar aquí: " + skillLines + "." + shortfall + "\n\nEscribe qué ocurrió.",
+    600
+  ).then(text=>{
+    sd.consequence = text;
+    sd.fit = fit;
+    state.remaining = state.remaining.filter(id=>!spent.includes(id));
+    state.loading = false;
+    render();
+  }).catch(e=>{
+    state.loading = false;
+    state.loadError = "No se pudo generar la consecuencia. Intenta de nuevo.";
+    render();
+  });
+}
+
+function advanceStage(){
+  const next = state.currentStage + 1;
+  if(next >= 5){
+    state.screen = "diagnostic";
+    render();
+    loadDiagnostic();
+    return;
+  }
+  state.currentStage = next;
+  state.screen = "journey";
+  render();
+}
+
+async function loadDiagnostic(){
+  const allSkillLines = allAcquiredIds().map(id=>SKILLS[id].n).join(", ");
+  const stageLines = state.stages.map((sd,i)=>
+    "Etapa "+(i+1)+" — "+STAGES[i].name+": usó ["+sd.spent.map(id=>SKILLS[id].n).join(", ")+"]. Resultado: "+sd.consequence
+  ).join("\n\n");
+  const sys = STYLE + " Escribes el retrato de carácter de un líder construido en un ejercicio — no un resumen de lo que pasó, sino un diagnóstico de quién es. Responde ÚNICAMENTE con un objeto JSON válido, sin texto adicional, sin backticks de markdown, con estas claves exactas: epiteto (frase evocadora de máximo doce palabras), fortalezas_dominantes (arreglo de 3 a 4 frases cortas, cualidades reales y específicas, no genéricas), puntos_ciegos_activos (arreglo de 3 a 4 frases cortas sobre qué puntos ciegos tiende a activar y en qué tipo de situación), bajo_presion (arreglo de 2 a 3 frases cortas sobre cómo reacciona bajo presión), situaciones_acierta (párrafo de 40 a 70 palabras sobre en qué tipo de situaciones este líder tiende a acertar), que_vigilar (párrafo de 40 a 70 palabras sobre qué debe vigilar de sí mismo, mostrando que la misma cualidad que es fortaleza en un contexto es costo en otro, sin decirlo con esas palabras exactas), imagen_cierre (una frase evocadora de cierre, nunca un resumen). No uses pronombres marcados por género: usa el nombre o construcciones neutras.";
+  const user = "Nombre del líder: " + state.hero.name + "\n\nHabilidades con las que fue construido: " + allSkillLines + "\n\nRecorrido completo:\n" + stageLines + "\n\nEscribe el diagnóstico en JSON.";
+  try{
+    let raw = await callClaude(sys, user, 1200);
+    raw = raw.replace(/```json|```/g,"").trim();
+    state.diag = JSON.parse(raw);
+  }catch(e){
+    state.loadError = "No se pudo generar el diagnóstico. Intenta de nuevo.";
+  }
+  render();
+}
+
+/* ============== INIT ============== */
+render();
+</script>
+</body>
+</html>
