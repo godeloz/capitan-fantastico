@@ -8,22 +8,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#F3F0E6;
-    --bg2:#EAE4D2;
-    --panel:#FFFFFF;
+    --bg:#F3F0E6; --bg2:#EAE4D2; --panel:#FFFFFF;
     --line:rgba(63,90,58,0.18);
-    --teal:#0E8F84;
-    --gold:#C99A2E;
-    --gold-light:#F5C842;
-    --moss:#3F5A3A;
-    --bronze:#8B5530;
-    --ink:#26301F;
-    --text:#2B3328;
-    --text-dim:#6E7C66;
-    --cream-text:#FDFBF4;
-    --font-d:'Bebas Neue',sans-serif;
-    --font-b:'Playfair Display',serif;
-    --font-m:'JetBrains Mono',monospace;
+    --teal:#0E8F84; --gold:#C99A2E; --gold-light:#F5C842;
+    --moss:#3F5A3A; --bronze:#8B5530; --ink:#26301F;
+    --text:#2B3328; --text-dim:#6E7C66; --cream-text:#FDFBF4;
+    --font-d:'Bebas Neue',sans-serif; --font-b:'Playfair Display',serif; --font-m:'JetBrains Mono',monospace;
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:var(--font-b);}
@@ -42,20 +32,18 @@
   .italic{font-style:italic;color:var(--moss);}
 
   .screen{padding:28px 20px 100px;flex:1;animation:fadein 0.4s ease;}
+    .screen.noanim{animation:none;}
   @keyframes fadein{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
 
-  .btn{
-    font-family:var(--font-d);font-size:16px;letter-spacing:0.06em;text-transform:uppercase;
+  .btn{font-family:var(--font-d);font-size:16px;letter-spacing:0.06em;text-transform:uppercase;
     background:var(--moss);color:var(--cream-text);border:none;border-radius:3px;
-    padding:14px 22px;cursor:pointer;width:100%;transition:transform 0.15s;
-  }
+    padding:14px 22px;cursor:pointer;width:100%;transition:transform 0.15s,background 0.2s;}
   .btn:active{transform:scale(0.98);}
   .btn:disabled{background:var(--line);color:var(--text-dim);cursor:not-allowed;}
   .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--text);}
   .btn.small{padding:9px 14px;font-size:13px;width:auto;flex:1;}
 
   .card{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:18px;margin-bottom:12px;}
-  .card.dossier{background:linear-gradient(180deg,var(--panel),var(--bg2));border-left:3px solid var(--gold-light);}
 
   .header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;
     padding:14px 20px;background:rgba(243,240,230,0.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);}
@@ -63,91 +51,128 @@
   .info-btn{width:30px;height:30px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--text-dim);
     font-family:var(--font-m);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
 
-  .tabs{display:flex;gap:6px;margin-bottom:16px;}
-  .tab{flex:1;text-align:center;padding:10px 4px;font-family:var(--font-d);font-size:14px;letter-spacing:0.04em;
-    border-radius:3px;border:1px solid var(--line);cursor:pointer;color:var(--text-dim);background:transparent;text-transform:uppercase;}
-  .tab.active{color:var(--cream-text);}
-  .tab.active[data-t="purista"]{background:var(--moss);}
-  .tab.active[data-t="guardian"]{background:var(--bronze);}
-  .tab.active[data-t="puente"]{background:var(--teal);}
+  /* Arquetipos */
+  .arch-card{border-radius:4px;padding:18px;margin-bottom:14px;border:1px solid var(--line);background:var(--panel);}
+  .arch-card.purista{border-left:3px solid var(--moss);}
+  .arch-card.guardian{border-left:3px solid var(--bronze);}
+  .arch-card.puente{border-left:3px solid var(--teal);}
+  .divider{height:1px;background:var(--line);margin:22px 0;}
 
-  .cat-label{font-family:var(--font-m);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);
-    margin:18px 0 8px;padding-bottom:4px;border-bottom:1px dashed var(--line);}
+  /* Brújula interactiva */
+  .compass{width:100%;display:block;margin:0 auto 6px;}
+  .sector{fill:var(--bg2);stroke:var(--bg);stroke-width:2;cursor:pointer;transition:fill 0.45s;}
+  .sector.visited{fill:rgba(63,90,58,0.30);}
+  .sector.current{fill:var(--gold-light);}
+  .clabel{font-family:var(--font-b);font-size:12.5px;fill:var(--text-dim);cursor:pointer;transition:fill 0.3s;}
+  .clabel.visited{fill:var(--moss);}
+  .clabel.current{fill:var(--ink);font-weight:600;}
+  .cdir{font-family:var(--font-m);font-size:9px;fill:var(--text-dim);text-anchor:middle;pointer-events:none;}
+  #ring-prog{transition:stroke-dashoffset 0.55s ease;}
+  #needle{transition:transform 0.6s cubic-bezier(.45,1.45,.55,1);}
+  .cap-card{min-height:130px;transition:opacity 0.2s;}
+  .cap-card.fade{opacity:0.15;}
+  .compass-count{font-family:var(--font-m);font-size:12px;color:var(--text-dim);text-align:center;margin:4px 0 14px;}
+  .compass-count b{color:var(--gold);}
+
+  /* Constructor */
+  .mix-banner{display:flex;gap:12px;align-items:flex-start;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:14px;margin-bottom:16px;}
+  .mix-dots{display:flex;flex-direction:column;gap:4px;padding-top:4px;}
+  .mix-dots span{width:10px;height:10px;border-radius:50%;}
+  .mix-banner p{margin:0;font-size:13.5px;line-height:1.55;}
+
+  .cat-tabs{display:flex;gap:6px;margin-bottom:12px;}
+  .cat-tab{flex:1;text-align:center;padding:9px 4px 7px;border-radius:3px;border:1px solid var(--line);cursor:pointer;background:transparent;}
+  .cat-tab .ct-name{font-family:var(--font-d);font-size:14px;letter-spacing:0.04em;text-transform:uppercase;color:var(--text-dim);display:block;}
+  .cat-tab .ct-count{font-family:var(--font-m);font-size:11px;color:var(--text-dim);}
+  .cat-tab.active{background:var(--ink);border-color:var(--ink);}
+  .cat-tab.active .ct-name,.cat-tab.active .ct-count{color:var(--cream-text);}
+  .cat-tab.full .ct-count{color:var(--moss);font-weight:500;}
+  .cat-tab.active.full .ct-count{color:var(--gold-light);}
+
+  .cat-intro{font-size:13.5px;color:var(--text);margin:4px 0 12px;}
+  .chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+  .chip{font-family:var(--font-m);font-size:11px;padding:5px 10px;border-radius:14px;border:1px solid var(--line);cursor:pointer;color:var(--text-dim);background:transparent;}
+  .chip.active{background:var(--bg2);color:var(--ink);border-color:var(--text-dim);}
 
   .skill-card{border:1px solid var(--line);border-radius:3px;padding:12px 14px;margin-bottom:8px;cursor:pointer;
-    background:var(--bg2);transition:border-color 0.15s,background 0.15s;}
-  .skill-card.selected{border-color:var(--gold);background:rgba(201,154,46,0.12);}
-  .skill-card.disabled{opacity:0.45;cursor:default;}
+    background:var(--panel);transition:border-color 0.15s,background 0.15s;}
+  .skill-card.selected{border-color:var(--gold);background:rgba(201,154,46,0.12);box-shadow:inset 3px 0 0 var(--gold);}
+  .skill-card.disabled{opacity:0.42;cursor:default;}
   .skill-card .sname{font-family:var(--font-b);font-weight:600;font-size:15px;color:var(--ink);margin-bottom:3px;}
   .skill-card .sdesc{font-size:13px;color:var(--text-dim);font-style:italic;line-height:1.4;}
-  .skill-card .stags{margin-top:6px;display:flex;flex-wrap:wrap;gap:5px;}
-  .tag{font-family:var(--font-m);font-size:10px;letter-spacing:0.03em;padding:2px 7px;border-radius:10px;
-    background:rgba(14,143,132,0.12);color:var(--teal);border:1px solid rgba(14,143,132,0.3);}
-  .tag.owned-else{background:rgba(110,124,102,0.12);color:var(--text-dim);border-color:var(--line);}
-
-  .footer-bar{position:sticky;bottom:0;z-index:20;background:rgba(243,240,230,0.96);backdrop-filter:blur(6px);
-    border-top:1px solid var(--line);padding:12px 20px;}
-  .progress-line{font-family:var(--font-m);font-size:12px;color:var(--text-dim);margin-bottom:8px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;}
-  .progress-line b{color:var(--gold);}
-  .ok{color:var(--moss);}
+  .skill-card .stags{margin-top:7px;display:flex;flex-wrap:wrap;gap:5px;align-items:center;}
+  .badge{font-family:var(--font-m);font-size:9.5px;letter-spacing:0.05em;text-transform:uppercase;padding:2px 7px;border-radius:2px;color:var(--cream-text);}
+  .badge.purista{background:var(--moss);} .badge.guardian{background:var(--bronze);} .badge.puente{background:var(--teal);}
+  .tag{font-family:var(--font-m);font-size:10px;padding:2px 7px;border-radius:10px;
+    background:rgba(14,143,132,0.10);color:var(--teal);border:1px solid rgba(14,143,132,0.28);}
+  .note{font-family:var(--font-m);font-size:10px;color:var(--bronze);}
 
   input[type=text]{width:100%;padding:12px;border-radius:3px;border:1px solid var(--line);
-    background:var(--panel);color:var(--text);font-family:var(--font-b);font-size:15px;margin-bottom:14px;}
+    background:var(--panel);color:var(--text);font-family:var(--font-b);font-size:15px;margin-bottom:16px;}
   label.flabel{font-family:var(--font-m);font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-dim);display:block;margin-bottom:6px;}
 
+  .footer-bar{position:sticky;bottom:0;z-index:20;background:rgba(243,240,230,0.97);backdrop-filter:blur(6px);
+    border-top:1px solid var(--line);padding:12px 20px 14px;}
+  .goal-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px;gap:10px;}
+  .goal-top .gt-count{font-family:var(--font-d);font-size:20px;color:var(--ink);letter-spacing:0.03em;}
+  .goal-top .gt-msg{font-family:var(--font-m);font-size:11px;color:var(--text-dim);text-align:right;}
+  .goal-top .gt-msg.near{color:var(--bronze);}
+  .goal-top .gt-msg.done{color:var(--moss);font-weight:500;}
+  .goal-cells{display:grid;grid-template-columns:repeat(12,1fr);gap:3px;margin-bottom:10px;}
+  .goal-cells span{height:9px;border-radius:2px;background:var(--bg2);border:1px solid var(--line);transition:background 0.3s;}
+  .goal-cells span.on{background:var(--gold);border-color:var(--gold);}
+  .goal-cells span.on.done{background:var(--moss);border-color:var(--moss);}
+  .goal-cells span:nth-child(4n){margin-right:5px;}
+
+  /* Modal */
   .modal-bg{position:fixed;inset:0;background:rgba(20,25,18,0.55);z-index:50;display:flex;align-items:flex-end;justify-content:center;}
-  .modal{background:var(--panel);border-top:1px solid var(--line);border-radius:10px 10px 0 0;padding:22px 20px 30px;
-    max-width:560px;width:100%;max-height:80vh;overflow-y:auto;}
+  .modal{background:var(--panel);border-top:1px solid var(--line);border-radius:10px 10px 0 0;padding:22px 20px 30px;max-width:560px;width:100%;max-height:80vh;overflow-y:auto;}
   .modal h3{margin-bottom:14px;}
   .cap-item{margin-bottom:14px;}
   .cap-item .cname{font-family:var(--font-b);font-weight:600;color:var(--gold);margin-bottom:2px;}
   .cap-item .cdesc{font-size:13px;color:var(--text-dim);}
 
-  .arch-card{border-radius:4px;padding:18px;margin-bottom:14px;border:1px solid var(--line);background:var(--panel);}
-  .arch-card.purista{border-left:3px solid var(--moss);}
-  .arch-card.guardian{border-left:3px solid var(--bronze);}
-  .arch-card.puente{border-left:3px solid var(--teal);}
-
-  .divider{height:1px;background:var(--line);margin:22px 0;}
-
-  .dot{width:8px;height:8px;border-radius:50%;background:var(--line);cursor:pointer;display:inline-block;}
-  .dot.active{background:var(--bronze);}
-
+  /* Diagnóstico */
+  .radar-grid{fill:none;stroke:var(--line);stroke-width:1;}
+  .radar-shape{fill:rgba(14,143,132,0.22);stroke:var(--teal);stroke-width:2;}
+  .radar-dot{fill:var(--teal);}
+  .rlabel{font-family:var(--font-b);font-size:12.5px;fill:var(--text);}
+  .rlabel.top{fill:var(--moss);font-weight:600;}
   .bar-row{display:flex;align-items:center;gap:10px;margin-bottom:11px;}
-  .bar-label{width:118px;font-family:var(--font-m);font-size:10.5px;color:var(--text-dim);flex-shrink:0;}
+  .bar-label{width:100px;font-family:var(--font-m);font-size:10.5px;color:var(--text-dim);flex-shrink:0;}
   .bar-track{flex:1;height:8px;background:var(--bg2);border-radius:4px;overflow:hidden;}
-  .bar-fill{height:100%;background:linear-gradient(90deg,var(--moss),var(--teal));border-radius:4px;}
+  .bar-fill{height:100%;border-radius:4px;}
   .diag-list{margin:0;padding-left:18px;}
   .diag-list li{margin-bottom:8px;font-size:14px;}
+  .diag-list .badge{margin-left:4px;vertical-align:1px;}
 
   @media print{
     .header,.footer-bar,.no-print,.bg-contours{display:none !important;}
     body{background:#fff;}
     .card{border:1px solid #ccc;break-inside:avoid;}
+    .badge{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    .bar-fill,.radar-shape{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   }
 </style>
 </head>
 <body>
 <svg class="bg-contours" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice">
   <g fill="none" stroke="#3F5A3A" stroke-width="0.7">
-    <path d="M-20,120 Q100,60 200,120 T420,120"/>
-    <path d="M-20,180 Q100,240 200,180 T420,180"/>
-    <path d="M-20,500 Q120,440 220,500 T440,500"/>
-    <path d="M-20,560 Q120,610 220,560 T440,560"/>
+    <path d="M-20,120 Q100,60 200,120 T420,120"/><path d="M-20,180 Q100,240 200,180 T420,180"/>
+    <path d="M-20,500 Q120,440 220,500 T440,500"/><path d="M-20,560 Q120,610 220,560 T440,560"/>
   </g>
-  <g fill="none" stroke="#8B5530" stroke-width="0.6">
-    <path d="M-20,340 Q140,300 260,350 T440,330"/>
-  </g>
+  <g fill="none" stroke="#8B5530" stroke-width="0.6"><path d="M-20,340 Q140,300 260,350 T440,330"/></g>
 </svg>
 <div id="app"></div>
 
 <script>
-/* ============== DATA (idéntica a la app del viaje) ============== */
+/* ============== DATOS ============== */
 const CAP_NAMES = {
   percepcion:"Percepción", compromiso:"Compromiso", resistencia:"Resistencia",
   discernimiento:"Discernimiento", autoridad:"Autoridad propia", costo:"Costo personal",
   traduccion:"Traducción", coherencia:"Coherencia"
 };
+const CAP_ART = {percepcion:"la",compromiso:"el",resistencia:"la",discernimiento:"el",autoridad:"la",costo:"el",traduccion:"la",coherencia:"la"};
 const CAPACITIES = [
   {id:"percepcion",desc:"Notar la señal antes de que sea obvia; leer lo que el sistema todavía no admite."},
   {id:"compromiso",desc:"Decidir sin garantías; cruzar sabiendo que no hay vuelta atrás."},
@@ -158,6 +183,7 @@ const CAPACITIES = [
   {id:"traduccion",desc:"Convertir lo vivido en algo que otros puedan usar, no solo en anécdota."},
   {id:"coherencia",desc:"Que lo que se hace después siga siendo fiel a lo que se dijo antes."}
 ];
+const DIRS = ["N","NE","E","SE","S","SO","O","NO"];
 
 const SKILLS = {
   sk01:{n:"Disciplina sin atajos",d:"Hace lo mismo el día que nadie mira y el día que todos miran.",f:["coherencia","resistencia"],p:[]},
@@ -174,7 +200,7 @@ const SKILLS = {
   sk12:{n:"Aísla para proteger el código",d:"Cierra filas antes que abrir la conversación.",f:["resistencia"],p:[]},
   sk13:{n:"Absorbe el costo sin pedir ayuda",d:"Sube la apuesta sobre sí mismo antes que ceder terreno.",f:["resistencia","costo"],p:[]},
   sk14:{n:"Memoria de lo ya aprendido",d:"Vuelve a la lección que ya le costó una vez.",f:["discernimiento","coherencia"],p:[]},
-  sk15:{n:"Silencia la duda propia",d:"Avanza incluso cuando algo dentro de él también vacila.",f:["autoridad"],p:[]},
+  sk15:{n:"Silencia la duda propia",d:"Avanza incluso cuando algo dentro también vacila.",f:["autoridad"],p:[]},
   sk16:{n:"Lectura temprana del riesgo",d:"Ve la grieta antes de que sea noticia.",f:["percepcion","discernimiento"],p:[]},
   sk17:{n:"Legitimidad institucional",d:"Sabe hablar el idioma que la junta necesita oír.",f:["traduccion","coherencia"],p:[]},
   sk18:{n:"Protección de los más expuestos",d:"No sacrifica al más débil del sistema para salvar el plan.",f:["costo","discernimiento"],p:[]},
@@ -198,31 +224,34 @@ const SKILLS = {
 };
 
 const TREES = {
-  purista:{name:"El Purista",accent:"var(--moss)",cls:"purista",
+  purista:{name:"El Purista",short:"Purista",accent:"var(--moss)",cls:"purista",
     philosophy:"Las reglas se prueban, no se debaten. Enseña destreza antes que consuelo, sostiene el mismo principio en la calma y en la tormenta, y mide el liderazgo por lo que su gente puede hacer sin él delante.",
     character:"Inspirado en Ben, el padre",
     characterDetail:"Cría a sus seis hijos aislado en el bosque, con un régimen diario de entrenamiento físico y estudio que no negocia ni siquiera frente a la muerte de su esposa. Insiste en decirles la verdad más cruda sin suavizarla nunca, convencido de que protegerlos de la realidad sería la traición más grande.",
-    fortaleza:["sk01","sk02","sk03","sk04","sk05"],
-    puntoCiego:["sk06","sk07","sk08","sk09","sk10"],
-    bajoPresion:["sk11","sk12","sk13","sk14","sk15"]},
-  guardian:{name:"El Guardián",accent:"var(--bronze)",cls:"guardian",
+    fortaleza:["sk01","sk02","sk03","sk04","sk05"], puntoCiego:["sk06","sk07","sk08","sk09","sk10"], bajoPresion:["sk11","sk12","sk13","sk14","sk15"]},
+  guardian:{name:"El Guardián",short:"Guardián",accent:"var(--bronze)",cls:"guardian",
     philosophy:"La seguridad no es cobardía: es memoria de lo que ya costó aprender. Protege el sistema, cuida a quien tiene menos margen de error, y prefiere la lentitud prudente a la audacia sin red.",
     character:"Inspirado en Jack, el abuelo",
     characterDetail:"Exige la custodia legal de sus nietos, impone un funeral religioso convencional que contradice la voluntad de su hija, y defiende la escuela formal frente a la crianza radical de su yerno. Ya vio de cerca el costo de la vida que Ben eligió, y no está dispuesto a dejar que los niños lo paguen también.",
-    fortaleza:["sk14","sk16","sk17","sk18","sk19"],
-    puntoCiego:["sk20","sk21","sk22","sk09","sk23"],
-    bajoPresion:["sk24","sk25","sk26","sk27","sk06"]},
-  puente:{name:"El Puente",accent:"var(--teal)",cls:"puente",
+    fortaleza:["sk14","sk16","sk17","sk18","sk19"], puntoCiego:["sk20","sk21","sk22","sk09","sk23"], bajoPresion:["sk24","sk25","sk26","sk27","sk06"]},
+  puente:{name:"El Puente",short:"Puente",accent:"var(--teal)",cls:"puente",
     philosophy:"Ningún bando tiene toda la razón. Traduce entre lógicas que no se hablan, construye lo que cabe entre dos posturas opuestas, y paga el precio de no pertenecer del todo a ninguna.",
     character:"Inspirado en Bo, el hijo mayor",
     characterDetail:"Fue formado por completo bajo el régimen de su padre, y aun así solicita en secreto el ingreso a varias universidades — es aceptado en todas, sin que Ben lo supiera. No rechaza la disciplina que recibió ni acepta sin más el mundo convencional que su padre despreciaba: al final construye un camino que no es del todo ni uno ni el otro.",
-    fortaleza:["sk16","sk28","sk18","sk29","sk05"],
-    puntoCiego:["sk30","sk31","sk32","sk33","sk23"],
-    bajoPresion:["sk25","sk13","sk34","sk35","sk26"]}
+    fortaleza:["sk16","sk28","sk18","sk29","sk05"], puntoCiego:["sk30","sk31","sk32","sk33","sk23"], bajoPresion:["sk25","sk13","sk34","sk35","sk26"]}
 };
+const TREE_KEYS = ["purista","guardian","puente"];
+const CATS = ["fortaleza","puntoCiego","bajoPresion"];
 const CAT_LABELS = {fortaleza:"Fortalezas",puntoCiego:"Puntos ciegos",bajoPresion:"Bajo presión"};
+const CAT_SINGULAR = {fortaleza:"fortaleza",puntoCiego:"punto ciego",bajoPresion:"comportamiento bajo presión"};
+const CAT_INTRO = {
+  fortaleza:"Lo que te sostiene cuando el terreno se mueve. Elige las cuatro que más se parecen a tu manera real de liderar, no a la que te gustaría tener.",
+  puntoCiego:"Lo que no alcanzas a ver de ti cuando estás en medio del problema. Ningún líder carece de ellos: elegirlos con honestidad es lo que vuelve preciso tu diagnóstico.",
+  bajoPresion:"Lo que aparece cuando el tiempo se acaba y la tensión sube. Piensa en tu última semana difícil y en cómo reaccionaste de verdad."
+};
+const PER_CAT = 4, TOTAL = 12;
 
-/* ============== BANCO DE CONTENIDO ESTÁTICO PARA EL DIAGNÓSTICO ============== */
+/* ============== BANCO DE TEXTOS DEL DIAGNÓSTICO ============== */
 const EPITETOS = {
   percepcion:"Quien ve la grieta antes de que nadie más la nombre.",
   compromiso:"Quien cruza sabiendo que ya no hay vuelta atrás, y cruza de todos modos.",
@@ -259,9 +288,9 @@ const AUSENCIA = {
   resistencia:"con poco entrenamiento en sostener el desgaste repetido, puede ceder terreno antes de lo necesario cuando la fricción se repite.",
   discernimiento:"con poca práctica en distinguir señal de ruido, puede darle el mismo peso a lo urgente y a lo verdaderamente importante.",
   autoridad:"con poca costumbre de sostener el propio juicio, puede depender más de lo necesario de la validación externa.",
-  costo:"con poca disposición a asumir el costo personal, puede dejar que otros paguen lo que a él también le correspondía pagar.",
+  costo:"con poca disposición a asumir el costo personal, puede dejar que otros paguen lo que también le correspondía pagar.",
   traduccion:"con poca práctica en traducir entre posturas opuestas, puede dejar que los conflictos se profundicen sin nadie que medie.",
-  coherencia:"con poca costumbre de sostener la coherencia en el tiempo, puede parecer, para quienes lo siguen, menos predecible de lo que ellos necesitan."
+  coherencia:"con poca costumbre de sostener la coherencia en el tiempo, puede parecer, para quienes lo siguen, menos predecible de lo que necesitan."
 };
 const CIERRE = {
   purista:"Un liderazgo que se sostiene mejor cuando alguien más, cerca, se atreve a decirle cuándo la regla ya no aplica.",
@@ -270,111 +299,88 @@ const CIERRE = {
   balanceado:"Un liderazgo que no terminó de parecerse a ninguno de los tres arquetipos por completo, y que carga, por eso mismo, con la incomodidad y la libertad de no pertenecer del todo a ningún molde."
 };
 
-/* ============== STATE ============== */
+/* ============== ESTADO ============== */
 let state = {
   screen:"intro",
-  hero:{name:"",acquired:{}},
-  activeTab:"purista",
+  name:"",
+  acquired:{},          // id -> {cat, trees:[...]}
+  activeCat:"fortaleza",
+  filter:"todos",
   capIndex:0,
+  capVisited:[true,false,false,false,false,false,false,false],
+  needleAngle:0,
   showGlossary:false
 };
 
-/* ============== HELPERS ============== */
-function acquiredCount(){ return Object.keys(state.hero.acquired).length; }
-function countByCat(cat){ return Object.values(state.hero.acquired).filter(a=>a.cat===cat).length; }
-function allAcquiredIds(){ return Object.keys(state.hero.acquired); }
+/* ============== AYUDAS ============== */
+function countCat(cat){ return Object.values(state.acquired).filter(a=>a.cat===cat).length; }
+function totalCount(){ return Object.keys(state.acquired).length; }
+function canCreate(){ return totalCount()===TOTAL && CATS.every(c=>countCat(c)===PER_CAT) && state.name.trim().length>0; }
 
-function capTags(sk){
-  let tags=[];
-  sk.f.forEach(c=>tags.push({name:CAP_NAMES[c],strong:true}));
-  sk.p.forEach(c=>tags.push({name:CAP_NAMES[c],strong:false}));
-  return tags;
+function catPool(cat){
+  const map = {}, order = [];
+  TREE_KEYS.forEach(t=>TREES[t][cat].forEach(id=>{
+    if(!map[id]){ map[id]=[]; order.push(id); }
+    map[id].push(t);
+  }));
+  return order.map(id=>({id, trees:map[id]}));
 }
 
-function computeCapacityProfile(){
-  let scores = {}; CAPACITIES.forEach(c=>scores[c.id]=0);
-  allAcquiredIds().forEach(id=>{
-    const sk = SKILLS[id];
-    sk.f.forEach(c=>scores[c]+=2);
-    sk.p.forEach(c=>scores[c]+=1);
-  });
-  const max = Math.max(1, ...Object.values(scores));
-  return {scores, bars: CAPACITIES.map(c=>({id:c.id,name:CAP_NAMES[c.id],pct:Math.round(scores[c.id]/max*100)}))};
+/* Geometría compartida de la brújula */
+const CX=220, CY=190, R=118;
+function pt(deg, r){ const a=deg*Math.PI/180; return [CX + r*Math.sin(a), CY - r*Math.cos(a)]; }
+function wedgePath(i, r){
+  const [x1,y1]=pt(i*45-22.5,r), [x2,y2]=pt(i*45+22.5,r);
+  return `M${CX},${CY} L${x1.toFixed(1)},${y1.toFixed(1)} A${r},${r} 0 0 1 ${x2.toFixed(1)},${y2.toFixed(1)} Z`;
+}
+function capLabel(i, r, cls, extraAttr){
+  const ang=i*45, s=Math.sin(ang*Math.PI/180), c=Math.cos(ang*Math.PI/180);
+  const [x,y]=pt(ang,r);
+  const anchor = s>0.3?"start":(s<-0.3?"end":"middle");
+  const dy = c>0.9?-2:(c<-0.9?13:4);
+  return `<text class="${cls}" x="${x.toFixed(1)}" y="${(y+dy).toFixed(1)}" text-anchor="${anchor}" ${extraAttr||""}>${CAP_NAMES[CAPACITIES[i].id]}</text>`;
 }
 
-function computeDiagnostic(){
-  const cap = computeCapacityProfile();
-  const ranked = CAPACITIES.map(c=>({id:c.id,score:cap.scores[c.id]})).sort((a,b)=>b.score-a.score);
-  const top1 = ranked[0].id, top2 = ranked[1].id, weakest = ranked[ranked.length-1].id;
-
-  let treeCounts = {purista:0,guardian:0,puente:0};
-  Object.values(state.hero.acquired).forEach(a=>{ treeCounts[a.tree]++; });
-  const sortedCounts = Object.values(treeCounts).slice().sort((a,b)=>b-a);
-  const balanced = (sortedCounts[0]-sortedCounts[2]) <= 3;
-  const maxTree = Object.keys(treeCounts).reduce((a,b)=>treeCounts[a]>=treeCounts[b]?a:b);
-  const leaningKey = balanced ? "balanceado" : maxTree;
-
-  return {
-    bars: cap.bars,
-    treeCounts,
-    epiteto: EPITETOS[top1],
-    acierta: ACIERTA[top1] + " " + ACIERTA[top2],
-    vigilar: VIGILAR[top1] + " Por otro lado, construyó poco alrededor de " + CAP_NAMES[weakest].toLowerCase() + ": " + AUSENCIA[weakest],
-    cierre: CIERRE[leaningKey]
-  };
-}
-
-/* ============== RENDER ROOT ============== */
+/* ============== RENDER ============== */
+let lastScreen = null;
 function render(){
-  const app = document.getElementById("app");
+  const entering = state.screen!==lastScreen; lastScreen = state.screen;
   let html = "";
   if(state.screen!=="intro") html += renderHeader();
-  switch(state.screen){
-    case "intro": html += renderIntro(); break;
-    case "archetypes": html += renderArchetypes(); break;
-    case "capacities": html += renderCapacities(); break;
-    case "builder": html += renderBuilder(); break;
-    case "diagnostic": html += renderDiagnostic(); break;
-  }
+  html += ({intro:renderIntro,archetypes:renderArchetypes,capacities:renderCapacities,builder:renderBuilder,diagnostic:renderDiagnostic})[state.screen]();
   if(state.showGlossary) html += renderGlossary();
-  app.innerHTML = html;
+  document.getElementById("app").innerHTML = html;
+  if(!entering){ const s=document.querySelector(".screen"); if(s) s.classList.add("noanim"); }
   bindEvents();
 }
 
 function renderHeader(){
-  return `<div class="header">
-    <div class="logo">TU BRÚJULA DE LIDERAZGO</div>
-    <button class="info-btn" id="btn-glossary">i</button>
-  </div>`;
+  return `<div class="header"><div class="logo">TU BRÚJULA DE LIDERAZGO</div><button class="info-btn" id="btn-glossary" title="Las ocho capacidades">i</button></div>`;
 }
-
 function renderGlossary(){
-  return `<div class="modal-bg" id="modal-bg">
-    <div class="modal">
-      <h3>La brújula de exigencias</h3>
-      <p class="dim" style="margin-bottom:16px;font-size:13px;">Ocho capacidades que un liderazgo pone en juego, en proporciones distintas según quién lo ejerza.</p>
-      ${CAPACITIES.map(c=>`<div class="cap-item"><div class="cname">${CAP_NAMES[c.id]}</div><div class="cdesc">${c.desc}</div></div>`).join("")}
-      <button class="btn ghost" id="btn-close-modal">Cerrar</button>
-    </div>
-  </div>`;
+  return `<div class="modal-bg" id="modal-bg"><div class="modal">
+    <h3>La brújula de exigencias</h3>
+    <p class="dim" style="margin-bottom:16px;font-size:13px;">Ocho capacidades que todo liderazgo pone en juego, en proporciones distintas según quién lo ejerza.</p>
+    ${CAPACITIES.map(c=>`<div class="cap-item"><div class="cname">${CAP_NAMES[c.id]}</div><div class="cdesc">${c.desc}</div></div>`).join("")}
+    <button class="btn ghost" id="btn-close-modal">Cerrar</button>
+  </div></div>`;
 }
 
-/* ============== SCREEN: INTRO ============== */
 function renderIntro(){
   return `<div class="screen" style="display:flex;flex-direction:column;justify-content:center;min-height:100vh;">
     <div class="eyebrow">Liderazgo en escena</div>
     <h1 style="margin-bottom:18px;">Tu brújula<br>de liderazgo</h1>
-    <p class="italic" style="margin-bottom:28px;">Vas a construir tu propio perfil de liderazgo combinando fragmentos de tres maneras distintas de liderar. Al final vas a recibir un diagnóstico — una brújula propia, construida enteramente a partir de lo que elegiste.</p>
+    <p class="italic" style="margin-bottom:12px;">Tres maneras de liderar, ocho capacidades y doce decisiones. Vas a armar tu propio perfil tomando lo que reconoces de ti en cada uno de los tres arquetipos, y al final recibirás una brújula construida solo con lo que elegiste.</p>
+    <p class="dim" style="font-size:13px;margin-bottom:28px;">Duración aproximada: 15 minutos.</p>
     <button class="btn" id="btn-start">Comenzar</button>
   </div>`;
 }
 
-/* ============== SCREEN: ARCHETYPES ============== */
 function renderArchetypes(){
-  let html = `<div class="screen"><h2 style="margin-bottom:6px;">Tres maneras de liderar</h2>
+  let html = `<div class="screen"><div class="eyebrow">Paso 1 de 3</div><h2 style="margin-bottom:6px;">Tres maneras de liderar</h2>
   <p class="dim" style="margin-bottom:4px;font-size:14px;">Ninguna es la correcta. Cada una sostiene algo distinto, y cada una tiene un costo que no siempre se ve a tiempo.</p>
-  <p class="dim" style="margin-bottom:18px;font-size:13px;">Los tres están inspirados en tres personajes de <span class="italic" style="font-size:13px;">Capitán Fantástico</span> (2016).</p>`;
-  Object.keys(TREES).forEach(k=>{
+  <p class="dim" style="margin-bottom:18px;font-size:13px;">Los tres están inspirados en personajes de <span class="italic" style="font-size:13px;">Capitán Fantástico</span> (Matt Ross, 2016). Tu perfil podrá tomar habilidades de los tres.</p>`;
+  TREE_KEYS.forEach(k=>{
     const t = TREES[k];
     html += `<div class="arch-card ${t.cls}">
       <h3 style="color:${t.accent};">${t.name}</h3>
@@ -384,187 +390,297 @@ function renderArchetypes(){
       <p style="font-size:13.5px;margin:0;color:var(--text-dim);">${t.characterDetail}</p>
     </div>`;
   });
-  html += `<button class="btn" id="btn-to-capacities">Conocer la brújula de exigencias</button></div>`;
+  html += `<button class="btn" id="btn-to-capacities">Recorrer la brújula de exigencias</button></div>`;
   return html;
 }
 
-/* ============== SCREEN: CAPACITIES ============== */
+/* ---- Brújula interactiva ---- */
 function renderCapacities(){
-  const i = state.capIndex||0;
-  const c = CAPACITIES[i];
+  const C = 2*Math.PI*(R+12);
+  let sectors="", dirs="", labels="";
+  CAPACITIES.forEach((c,i)=>{
+    sectors += `<path class="sector" id="sec-${i}" data-cap="${i}" d="${wedgePath(i,R)}"/>`;
+    const [dx,dy]=pt(i*45,R-20);
+    dirs += `<text class="cdir" x="${dx.toFixed(1)}" y="${(dy+3).toFixed(1)}">${DIRS[i]}</text>`;
+    labels += capLabel(i, R+30, "clabel", `id="lab-${i}" data-cap="${i}"`);
+  });
   return `<div class="screen">
-    <div class="eyebrow">La brújula de exigencias</div>
-    <h2 style="margin-bottom:10px;">Ocho capacidades</h2>
-    <p class="dim" style="margin-bottom:18px;font-size:14px;">Tu perfil final se va a leer a través de estas ocho capacidades. Vale la pena conocerlas antes de construirlo.</p>
-    <div class="card" style="min-height:140px;">
-      <div class="eyebrow" style="color:var(--bronze);">${i+1} / ${CAPACITIES.length}</div>
-      <h3 style="margin-bottom:10px;">${CAP_NAMES[c.id]}</h3>
-      <p style="margin:0;">${c.desc}</p>
+    <div class="eyebrow">Paso 2 de 3 · La brújula de exigencias</div>
+    <h2 style="margin-bottom:8px;">Ocho capacidades</h2>
+    <p class="dim" style="margin-bottom:6px;font-size:14px;">Tu perfil final se leerá a través de estos ocho puntos cardinales. Recórrelos uno a uno: a medida que avanzas, la brújula se completa.</p>
+    <svg class="compass" viewBox="0 0 440 380" role="img" aria-label="Brújula de ocho capacidades">
+      <circle cx="${CX}" cy="${CY}" r="${R+12}" fill="none" stroke="var(--line)" stroke-width="4"/>
+      <circle id="ring-prog" cx="${CX}" cy="${CY}" r="${R+12}" fill="none" stroke="var(--gold)" stroke-width="4" stroke-linecap="round"
+        stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${C.toFixed(1)}" transform="rotate(-90 ${CX} ${CY})"/>
+      ${sectors}${dirs}${labels}
+      <circle cx="${CX}" cy="${CY}" r="30" fill="var(--panel)" stroke="var(--line)"/>
+      <g id="needle" style="transform-origin:${CX}px ${CY}px;transform:rotate(0deg);">
+        <polygon points="${CX},${CY-R+34} ${CX-7},${CY} ${CX+7},${CY}" fill="var(--bronze)"/>
+        <polygon points="${CX-5},${CY} ${CX+5},${CY} ${CX},${CY+26}" fill="var(--moss)"/>
+      </g>
+      <circle cx="${CX}" cy="${CY}" r="4" fill="var(--ink)"/>
+    </svg>
+    <div class="compass-count" id="compass-count"></div>
+    <div class="card cap-card" id="cap-card">
+      <div class="eyebrow" style="color:var(--bronze);" id="cap-num"></div>
+      <h3 style="margin-bottom:10px;" id="cap-name"></h3>
+      <p style="margin:0;" id="cap-desc"></p>
     </div>
-    <div style="display:flex;gap:8px;margin:14px 0;">
-      <button class="btn ghost small" id="cap-prev" ${i===0?"disabled":""}>‹ Anterior</button>
-      <button class="btn ghost small" id="cap-next" ${i===CAPACITIES.length-1?"disabled":""}>Siguiente ›</button>
+    <div style="display:flex;gap:8px;margin:14px 0 22px;">
+      <button class="btn ghost small" id="cap-prev">‹ Anterior</button>
+      <button class="btn ghost small" id="cap-next">Siguiente ›</button>
     </div>
-    <div style="display:flex;gap:6px;justify-content:center;margin-bottom:26px;">
-      ${CAPACITIES.map((cc,idx)=>`<span class="dot ${idx===i?'active':''}" data-jump="${idx}"></span>`).join("")}
-    </div>
-    <button class="btn" id="btn-to-builder">Construir mi perfil</button>
+    <button class="btn" id="btn-to-builder"></button>
   </div>`;
 }
 
-/* ============== SCREEN: BUILDER ============== */
-function renderBuilder(){
-  const tree = TREES[state.activeTab];
-  const total = acquiredCount();
-  const fC = countByCat("fortaleza"), pC = countByCat("puntoCiego"), bC = countByCat("bajoPresion");
-  const canProceed = total===18 && fC>=3 && pC>=3 && bC>=3 && state.hero.name.trim().length>0;
+function updateCompass(animateCard){
+  const i = state.capIndex;
+  const visitedN = state.capVisited.filter(Boolean).length;
+  CAPACITIES.forEach((c,k)=>{
+    const cls = k===i ? "current" : (state.capVisited[k] ? "visited" : "");
+    document.getElementById("sec-"+k).setAttribute("class","sector "+cls);
+    document.getElementById("lab-"+k).setAttribute("class","clabel "+cls);
+  });
+  document.getElementById("needle").style.transform = `rotate(${state.needleAngle}deg)`;
+  const C = 2*Math.PI*(R+12);
+  document.getElementById("ring-prog").setAttribute("stroke-dashoffset",(C*(1-visitedN/8)).toFixed(1));
+  document.getElementById("compass-count").innerHTML = `<b>${visitedN}</b> de 8 capacidades recorridas`;
 
-  let html = `<div class="screen" style="padding-bottom:170px;">
-    <h2 style="margin-bottom:10px;">Construye tu perfil</h2>
-    <div class="card" style="margin-bottom:16px;">
-      <p style="margin:0;font-size:14px;">Vas a elegir <b>dieciocho habilidades</b> en total, sin importar de qué árbol vengan. Necesitas al menos <b>tres Fortalezas</b>, <b>tres Puntos ciegos</b> y <b>tres comportamientos Bajo presión</b> — ningún perfil real evita tener vulnerabilidades. Tu diagnóstico se construye exactamente a partir de esta elección.</p>
+  const fill = ()=>{
+    if(!document.getElementById("cap-num")) return;
+    document.getElementById("cap-num").textContent = `${DIRS[i]} · ${i+1} de 8`;
+    document.getElementById("cap-name").textContent = CAP_NAMES[CAPACITIES[i].id];
+    document.getElementById("cap-desc").textContent = CAPACITIES[i].desc;
+  };
+  const card = document.getElementById("cap-card");
+  if(animateCard){ card.classList.add("fade"); setTimeout(()=>{ fill(); if(card.isConnected) card.classList.remove("fade"); },180); }
+  else fill();
+
+  document.getElementById("cap-prev").disabled = i===0;
+  document.getElementById("cap-next").disabled = i===7;
+  const go = document.getElementById("btn-to-builder");
+  go.disabled = visitedN<8;
+  go.textContent = visitedN<8 ? `Recorre las ocho para continuar (${visitedN}/8)` : "Construir mi perfil";
+}
+
+function goToCap(i){
+  if(i<0||i>7) return;
+  const target = i*45;
+  const cur = ((state.needleAngle%360)+360)%360;
+  const delta = ((target-cur+540)%360)-180;
+  state.needleAngle += delta;
+  state.capIndex = i;
+  state.capVisited[i] = true;
+  updateCompass(true);
+}
+
+/* ---- Constructor ---- */
+function renderBuilder(){
+  const cat = state.activeCat;
+  const n = totalCount();
+  const catN = countCat(cat);
+  const pool = catPool(cat).filter(it=> state.filter==="todos" || it.trees.includes(state.filter));
+
+  let html = `<div class="screen" style="padding-bottom:190px;">
+    <div class="eyebrow">Paso 3 de 3</div>
+    <h2 style="margin-bottom:12px;">Construye tu perfil</h2>
+    <div class="mix-banner">
+      <div class="mix-dots"><span style="background:var(--moss)"></span><span style="background:var(--bronze)"></span><span style="background:var(--teal)"></span></div>
+      <p>Elige <b>doce habilidades: cuatro en cada categoría</b>. Puedes mezclar libremente los tres liderazgos — cada habilidad lleva una marca de color que dice si viene del <b style="color:var(--moss)">Purista</b>, del <b style="color:var(--bronze)">Guardián</b> o del <b style="color:var(--teal)">Puente</b>. Algunas pertenecen a dos a la vez.</p>
     </div>
     <label class="flabel">Tu nombre</label>
-    <input type="text" id="hero-name" placeholder="¿Cómo te llamas?" value="${state.hero.name}">
+    <input type="text" id="hero-name" placeholder="¿Cómo te llamas?" value="${state.name.replace(/"/g,"&quot;")}">
 
-    <div class="tabs">
-      ${Object.keys(TREES).map(k=>`<div class="tab ${state.activeTab===k?'active':''}" data-t="${k}">${TREES[k].name}</div>`).join("")}
+    <div class="cat-tabs">
+      ${CATS.map(c=>{ const k=countCat(c); return `<div class="cat-tab ${c===cat?'active':''} ${k===PER_CAT?'full':''}" data-cat="${c}">
+        <span class="ct-name">${CAT_LABELS[c]}</span><span class="ct-count">${k===PER_CAT?"✓ ":""}${k}/${PER_CAT}</span></div>`; }).join("")}
     </div>
-    <p class="dim" style="font-size:13px;margin-bottom:4px;">${tree.philosophy}</p>
-  `;
+    <p class="cat-intro">${CAT_INTRO[cat]}</p>
+    <div class="chips">
+      ${["todos",...TREE_KEYS].map(f=>`<span class="chip ${state.filter===f?'active':''}" data-filter="${f}">${f==="todos"?"Los tres":TREES[f].short}</span>`).join("")}
+    </div>`;
 
-  ["fortaleza","puntoCiego","bajoPresion"].forEach(cat=>{
-    html += `<div class="cat-label">${CAT_LABELS[cat]}</div>`;
-    tree[cat].forEach(id=>{
-      const sk = SKILLS[id];
-      const acq = state.hero.acquired[id];
-      const ownedHere = acq && acq.tree===state.activeTab && acq.cat===cat;
-      const ownedElsewhere = acq && !ownedHere;
-      const tags = capTags(sk);
-      html += `<div class="skill-card ${ownedHere?'selected':''} ${ownedElsewhere?'disabled':''}" ${ownedElsewhere?'':`data-sid="${id}" data-cat="${cat}"`}>
-        <div class="sname">${sk.n}</div>
-        <div class="sdesc">${sk.d}</div>
-        <div class="stags">
-          ${tags.map(t=>`<span class="tag">${t.name}</span>`).join("")}
-          ${ownedElsewhere?`<span class="tag owned-else">ya la tienes (vía ${TREES[acq.tree].name})</span>`:""}
-        </div>
-      </div>`;
-    });
+  pool.forEach(it=>{
+    const sk = SKILLS[it.id];
+    const acq = state.acquired[it.id];
+    const mine = acq && acq.cat===cat;
+    const elsewhere = acq && acq.cat!==cat;
+    const full = !acq && catN>=PER_CAT;
+    const disabled = elsewhere || full;
+    const tags = sk.f.concat(sk.p).map(c=>`<span class="tag">${CAP_NAMES[c]}</span>`).join("");
+    html += `<div class="skill-card ${mine?'selected':''} ${disabled?'disabled':''}" ${disabled?'':`data-sid="${it.id}"`}>
+      <div class="sname">${sk.n}</div>
+      <div class="sdesc">${sk.d}</div>
+      <div class="stags">
+        ${it.trees.map(t=>`<span class="badge ${t}">${TREES[t].short}</span>`).join("")}
+        ${tags}
+        ${elsewhere?`<span class="note">ya la elegiste como ${CAT_SINGULAR[acq.cat]}</span>`:""}
+      </div>
+    </div>`;
   });
 
-  html += `</div>
-  <div class="footer-bar">
-    <div class="progress-line">
-      <span><b>${total}/18</b> elegidas</span>
-      <span class="${fC>=3?'ok':''}">Fortalezas ${fC}/3</span>
-      <span class="${pC>=3?'ok':''}">Puntos ciegos ${pC}/3</span>
-      <span class="${bC>=3?'ok':''}">Bajo presión ${bC}/3</span>
-    </div>
-    <button class="btn" id="btn-create-profile" ${canProceed?"":"disabled"}>Crear mi perfil de líder</button>
+  if(catN===PER_CAT){
+    const nextCat = CATS.find(c=>countCat(c)<PER_CAT);
+    html += nextCat
+      ? `<button class="btn ghost" id="btn-next-cat" data-cat="${nextCat}" style="margin-top:8px;">${CAT_LABELS[cat]} completas ✓ · Ir a ${CAT_LABELS[nextCat]} ›</button>`
+      : "";
+  }
+  html += `</div>`;
+
+  /* Barra de meta */
+  const left = TOTAL - n;
+  let msg, msgCls="";
+  if(n===0) msg = "Empieza por cualquier categoría";
+  else if(left>3) msg = `Te faltan ${left}`;
+  else if(left>0){ msg = `¡Ya casi! Te ${left===1?"falta 1":"faltan "+left}`; msgCls="near"; }
+  else if(!state.name.trim()){ msg = "Escribe tu nombre para terminar"; msgCls="near"; }
+  else { msg = "Listo: tu brújula está completa"; msgCls="done"; }
+  const done = left===0;
+  html += `<div class="footer-bar">
+    <div class="goal-top"><span class="gt-count">${n} / ${TOTAL}</span><span class="gt-msg ${msgCls}">${msg}</span></div>
+    <div class="goal-cells">${Array.from({length:TOTAL},(_,k)=>`<span class="${k<n?'on':''} ${done?'done':''}"></span>`).join("")}</div>
+    <button class="btn" id="btn-create" ${canCreate()?"":"disabled"}>Crear mi perfil de líder</button>
   </div>`;
   return html;
 }
 
-/* ============== SCREEN: DIAGNOSTIC ============== */
+/* ---- Diagnóstico ---- */
+function computeDiagnostic(){
+  const scores = {}; CAPACITIES.forEach(c=>scores[c.id]=0);
+  const treeCounts = {purista:0,guardian:0,puente:0};
+  Object.entries(state.acquired).forEach(([id,a])=>{
+    SKILLS[id].f.forEach(c=>scores[c]+=2);
+    SKILLS[id].p.forEach(c=>scores[c]+=1);
+    a.trees.forEach(t=>treeCounts[t]+=1/a.trees.length);
+  });
+  const max = Math.max(1,...Object.values(scores));
+  const ranked = CAPACITIES.map(c=>({id:c.id,score:scores[c.id]})).sort((a,b)=>b.score-a.score);
+  const top1=ranked[0].id, top2=ranked[1].id, weakest=ranked[ranked.length-1].id;
+
+  const vals = Object.values(treeCounts);
+  const balanced = (Math.max(...vals)-Math.min(...vals)) <= 2;
+  const maxTree = TREE_KEYS.reduce((a,b)=>treeCounts[a]>=treeCounts[b]?a:b);
+
+  return {
+    norm: CAPACITIES.map(c=>scores[c.id]/max),
+    top:[top1,top2],
+    treeCounts,
+    epiteto: EPITETOS[top1],
+    acierta: ACIERTA[top1]+" "+ACIERTA[top2],
+    vigilar: VIGILAR[top1]+" Hay además una zona poco construida en tu brújula, "+CAP_ART[weakest]+" "+CAP_NAMES[weakest].toLowerCase()+": "+AUSENCIA[weakest],
+    cierre: CIERRE[balanced?"balanceado":maxTree]
+  };
+}
+
+function radarSvg(diag){
+  let grid="";
+  [0.33,0.66,1].forEach(l=>{
+    grid += `<polygon class="radar-grid" points="${CAPACITIES.map((c,i)=>pt(i*45,R*l).map(v=>v.toFixed(1)).join(",")).join(" ")}"/>`;
+  });
+  CAPACITIES.forEach((c,i)=>{ const [x,y]=pt(i*45,R); grid += `<line class="radar-grid" x1="${CX}" y1="${CY}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}"/>`; });
+  const pts = diag.norm.map((v,i)=>pt(i*45, R*Math.max(0.06,v)));
+  const shape = `<polygon class="radar-shape" points="${pts.map(p=>p.map(v=>v.toFixed(1)).join(",")).join(" ")}"/>`;
+  const dots = pts.map(p=>`<circle class="radar-dot" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.5"/>`).join("");
+  const labels = CAPACITIES.map((c,i)=>capLabel(i, R+22, "rlabel"+(diag.top.includes(c.id)?" top":""))).join("");
+  return `<svg class="compass" viewBox="0 0 440 380" role="img" aria-label="Tu brújula">${grid}${shape}${dots}${labels}</svg>`;
+}
+
 function renderDiagnostic(){
   const diag = computeDiagnostic();
   const byCat = {fortaleza:[],puntoCiego:[],bajoPresion:[]};
-  Object.keys(state.hero.acquired).forEach(id=>{ byCat[state.hero.acquired[id].cat].push(id); });
-  const maxTree = Math.max(1, ...Object.values(diag.treeCounts));
+  Object.entries(state.acquired).forEach(([id,a])=>byCat[a.cat].push(id));
+  const maxTree = Math.max(1,...Object.values(diag.treeCounts));
+  const item = id=>`<li><b>${SKILLS[id].n}</b>${state.acquired[id].trees.map(t=>`<span class="badge ${t}">${TREES[t].short}</span>`).join("")}<br><span class="dim" style="font-style:italic;font-size:13px;">${SKILLS[id].d}</span></li>`;
 
-  let html = `<div class="screen">
-    <div class="eyebrow">Diagnóstico</div>
-    <h2 style="margin-bottom:4px;">${state.hero.name}</h2>
-    <p class="italic" style="font-size:16px;margin-bottom:20px;">${diag.epiteto}</p>
+  return `<div class="screen">
+    <div class="eyebrow">Tu perfil de líder</div>
+    <h2 style="margin-bottom:4px;">${state.name.replace(/</g,"&lt;")}</h2>
+    <p class="italic" style="font-size:17px;margin-bottom:18px;">${diag.epiteto}</p>
 
     <div class="card">
-      <h3 style="margin-bottom:14px;">Tu brújula</h3>
-      ${diag.bars.map(p=>`
-        <div class="bar-row">
-          <div class="bar-label">${p.name}</div>
-          <div class="bar-track"><div class="bar-fill" style="width:${Math.max(6,p.pct)}%;"></div></div>
-        </div>`).join("")}
+      <h3 style="margin-bottom:4px;">Tu brújula</h3>
+      <p class="dim" style="font-size:12.5px;margin-bottom:4px;">Hacia dónde apunta tu liderazgo. En verde, tus dos capacidades más fuertes.</p>
+      ${radarSvg(diag)}
     </div>
 
     <div class="card">
       <h3 style="margin-bottom:14px;">De dónde viene tu liderazgo</h3>
-      ${["purista","guardian","puente"].map(k=>{
-        const pct = Math.round(diag.treeCounts[k]/maxTree*100);
-        return `<div class="bar-row">
-          <div class="bar-label">${TREES[k].name}</div>
-          <div class="bar-track"><div class="bar-fill" style="width:${Math.max(6,pct)}%;background:${TREES[k].accent};"></div></div>
-        </div>`;
-      }).join("")}
+      ${TREE_KEYS.map(k=>`<div class="bar-row"><div class="bar-label">${TREES[k].name}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${Math.max(4,Math.round(diag.treeCounts[k]/maxTree*100))}%;background:${TREES[k].accent};"></div></div></div>`).join("")}
     </div>
 
-    <div class="card"><div class="eyebrow" style="color:var(--moss);">Fortalezas elegidas</div>
-      <ul class="diag-list">${byCat.fortaleza.map(id=>`<li><b>${SKILLS[id].n}</b> — ${SKILLS[id].d}</li>`).join("")}</ul></div>
-    <div class="card"><div class="eyebrow" style="color:var(--bronze);">Puntos ciegos elegidos</div>
-      <ul class="diag-list">${byCat.puntoCiego.map(id=>`<li><b>${SKILLS[id].n}</b> — ${SKILLS[id].d}</li>`).join("")}</ul></div>
-    <div class="card"><div class="eyebrow" style="color:var(--teal);">Bajo presión</div>
-      <ul class="diag-list">${byCat.bajoPresion.map(id=>`<li><b>${SKILLS[id].n}</b> — ${SKILLS[id].d}</li>`).join("")}</ul></div>
+    <div class="card"><div class="eyebrow" style="color:var(--moss);">Fortalezas</div><ul class="diag-list">${byCat.fortaleza.map(item).join("")}</ul></div>
+    <div class="card"><div class="eyebrow" style="color:var(--bronze);">Puntos ciegos</div><ul class="diag-list">${byCat.puntoCiego.map(item).join("")}</ul></div>
+    <div class="card"><div class="eyebrow" style="color:var(--teal);">Bajo presión</div><ul class="diag-list">${byCat.bajoPresion.map(item).join("")}</ul></div>
 
-    <div class="card"><h3 style="margin-bottom:8px;">Dónde puede acertar</h3><p style="margin:0;">${diag.acierta}</p></div>
+    <div class="card"><h3 style="margin-bottom:8px;">Dónde puedes acertar</h3><p style="margin:0;">${diag.acierta}</p></div>
     <div class="card"><h3 style="margin-bottom:8px;">Qué vigilar</h3><p style="margin:0;">${diag.vigilar}</p></div>
 
     <p class="italic" style="font-size:17px;text-align:center;margin:24px 0;">${diag.cierre}</p>
 
     <div class="no-print">
       <button class="btn" id="btn-print">Descargar tu brújula (PDF)</button>
-      <button class="btn ghost" id="btn-restart" style="margin-top:10px;">Construir otro perfil</button>
+      <button class="btn ghost" id="btn-edit" style="margin-top:10px;">Ajustar mis elecciones</button>
+      <button class="btn ghost" id="btn-restart" style="margin-top:10px;">Empezar de nuevo</button>
     </div>
   </div>`;
-  return html;
 }
 
-/* ============== EVENT BINDING ============== */
+/* ============== EVENTOS ============== */
 function bindEvents(){
-  const $ = s=>document.querySelector(s);
-  const $$ = s=>document.querySelectorAll(s);
+  const $ = s=>document.querySelector(s), $$ = s=>document.querySelectorAll(s);
+  const go = scr=>{ state.screen=scr; render(); window.scrollTo(0,0); };
 
   if($("#btn-glossary")) $("#btn-glossary").onclick = ()=>{ state.showGlossary=true; render(); };
   if($("#btn-close-modal")) $("#btn-close-modal").onclick = ()=>{ state.showGlossary=false; render(); };
-  if($("#modal-bg")) $("#modal-bg").addEventListener("click",(e)=>{ if(e.target.id==="modal-bg"){ state.showGlossary=false; render(); }});
+  if($("#modal-bg")) $("#modal-bg").addEventListener("click",e=>{ if(e.target.id==="modal-bg"){ state.showGlossary=false; render(); }});
 
-  if($("#btn-start")) $("#btn-start").onclick = ()=>{ state.screen="archetypes"; render(); };
-  if($("#btn-to-capacities")) $("#btn-to-capacities").onclick = ()=>{ state.screen="capacities"; render(); };
-  if($("#cap-prev")) $("#cap-prev").onclick = ()=>{ state.capIndex = Math.max(0,(state.capIndex||0)-1); render(); };
-  if($("#cap-next")) $("#cap-next").onclick = ()=>{ state.capIndex = Math.min(CAPACITIES.length-1,(state.capIndex||0)+1); render(); };
-  $$(".dot[data-jump]").forEach(el=>{ el.onclick = ()=>{ state.capIndex = parseInt(el.dataset.jump); render(); }; });
-  if($("#btn-to-builder")) $("#btn-to-builder").onclick = ()=>{ state.screen="builder"; render(); };
+  if($("#btn-start")) $("#btn-start").onclick = ()=>go("archetypes");
+  if($("#btn-to-capacities")) $("#btn-to-capacities").onclick = ()=>go("capacities");
 
-  if($("#hero-name")) $("#hero-name").oninput = (e)=>{ state.hero.name = e.target.value; refreshFooterOnly(); };
+  if(state.screen==="capacities"){
+    updateCompass(false);
+    $("#cap-prev").onclick = ()=>goToCap(state.capIndex-1);
+    $("#cap-next").onclick = ()=>goToCap(state.capIndex+1);
+    $$("[data-cap]").forEach(el=>{ el.onclick = ()=>goToCap(parseInt(el.dataset.cap)); });
+    $("#btn-to-builder").onclick = ()=>go("builder");
+  }
 
-  $$(".tab").forEach(el=>{ el.onclick = ()=>{ state.activeTab = el.dataset.t; render(); }; });
+  if($("#hero-name")) $("#hero-name").oninput = e=>{ state.name = e.target.value; refreshFooter(); };
+  $$(".cat-tab").forEach(el=>{ el.onclick = ()=>{ state.activeCat = el.dataset.cat; render(); }; });
+  $$(".chip").forEach(el=>{ el.onclick = ()=>{ state.filter = el.dataset.filter; render(); }; });
+  if($("#btn-next-cat")) $("#btn-next-cat").onclick = e=>{ state.activeCat = e.currentTarget.dataset.cat; render(); window.scrollTo(0,0); };
 
   $$(".skill-card[data-sid]").forEach(el=>{
     el.onclick = ()=>{
-      const id = el.dataset.sid, cat = el.dataset.cat;
-      const acq = state.hero.acquired[id];
-      if(acq && acq.tree===state.activeTab && acq.cat===cat){
-        delete state.hero.acquired[id];
-      } else if(!acq){
-        if(acquiredCount()>=18) return;
-        state.hero.acquired[id] = {tree:state.activeTab, cat:cat};
+      const id = el.dataset.sid, cat = state.activeCat;
+      if(state.acquired[id]) delete state.acquired[id];
+      else if(countCat(cat)<PER_CAT){
+        const it = catPool(cat).find(x=>x.id===id);
+        state.acquired[id] = {cat, trees:it.trees};
       }
       render();
     };
   });
 
-  if($("#btn-create-profile")) $("#btn-create-profile").onclick = ()=>{ state.screen="diagnostic"; render(); };
-  if($("#btn-print")) $("#btn-print").onclick = ()=>{ window.print(); };
-  if($("#btn-restart")) $("#btn-restart").onclick = ()=>{ location.reload(); };
+  if($("#btn-create")) $("#btn-create").onclick = ()=>{ if(canCreate()) go("diagnostic"); };
+  if($("#btn-print")) $("#btn-print").onclick = ()=>window.print();
+  if($("#btn-edit")) $("#btn-edit").onclick = ()=>go("builder");
+  if($("#btn-restart")) $("#btn-restart").onclick = ()=>location.reload();
 }
 
-function refreshFooterOnly(){
-  const btn = document.getElementById("btn-create-profile");
-  if(btn){
-    const canProceed = acquiredCount()===18 && countByCat("fortaleza")>=3 && countByCat("puntoCiego")>=3 && countByCat("bajoPresion")>=3 && state.hero.name.trim().length>0;
-    btn.disabled = !canProceed;
+function refreshFooter(){
+  const btn = document.getElementById("btn-create");
+  if(btn) btn.disabled = !canCreate();
+  const msg = document.querySelector(".gt-msg");
+  if(msg && totalCount()===TOTAL){
+    const ok = state.name.trim().length>0;
+    msg.textContent = ok ? "Listo: tu brújula está completa" : "Escribe tu nombre para terminar";
+    msg.className = "gt-msg " + (ok?"done":"near");
   }
 }
 
-/* ============== INIT ============== */
 render();
 </script>
 </body>
